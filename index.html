@@ -16,6 +16,18 @@ body {
     background: #ffffff;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
+.status-summary, .sbs-summary {
+    display: flex;
+    gap: 1rem;
+    margin-left: 2rem;
+    font-size: 0.9rem;
+}
+.status-summary div, .sbs-summary div {
+    background: #f1f1f1;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+}
 .task-card {
     border-radius: 12px;
     padding: 15px;
@@ -91,6 +103,14 @@ body {
     padding: 20px;
     margin-top: 20px;
 }
+.task-item .copyBtn {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.task-item:hover .copyBtn {
+  opacity: 1;
+}
+
 </style>
 </head>
 <body>
@@ -98,9 +118,13 @@ body {
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="#">📋 Task Manager</a>
     <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+      <div class="status-summary" id="statusSummary"></div>
+      <div class="sbs-summary" id="sbsSummary"></div>
+      
       <div id="loginDropdownContainer"></div>
       <button class="btn btn-outline-danger btn-sm" id="logoutBtn" style="display:none;">Logout</button>
       <small class="text-muted ms-3" id="lastUpdated"></small>
+      
     </div>
   </div>
 </nav>
@@ -130,10 +154,25 @@ let tasks = [];
 let agents = new Set();
 let sbsSet = new Set();
 let currentPage = 1;
-let lastTaskCount = 0;   // track previously seen tasks
-let newTaskCount = 0;    // for favicon badge
+let lastTaskCount = 0;  
+let newTaskCount = 0;    
 const tasksPerPage = 20;
-
+const agentMap = {
+    "Adriana, Venz": "Venz",
+    "Marisa, Venz": "Venz",
+    "Venz, Adriana": "Venz",
+    "Adriana, Marisa": "Marisa",
+    "Marisa, Adriana": "Marisa",
+    "Marisa, Marissa C": "Marisa",
+    "Marisa, Venz": "Marisa",
+    "Adriana, Peter": "Peter",
+    "Peter, Jonathan": "Peter",
+    "Adriana, Ezequel": "Ezequel",
+    "Raven, Andrew": "Raven",
+    "Adriana, Sedney": "Sedney",
+    "Adriana, Jhonmar": "Jhonmar",
+    "Adriana, Jade": "Jade",
+};
 document.addEventListener("DOMContentLoaded", () => {
     initApp();
     document.getElementById("searchBar").addEventListener("input", () => { currentPage = 1; filterTasks(); });
@@ -149,21 +188,30 @@ async function initApp() {
     filterTasks();
 }
 
-function parseSheetDate(value) {
-    if (!value) return new Date(0);
-    if (!isNaN(value)) {
+function parseSheetDate(value){
+    if(!value) return null;
+
+    // Try numeric (Google Sheets epoch)
+    if(!isNaN(value)){
         const epoch = new Date(1899, 11, 30);
         return new Date(epoch.getTime() + Number(value) * 24*60*60*1000);
     }
+
+    // Try standard JS date parsing
+    const date = new Date(value);
+    if(!isNaN(date.getTime())) return date;
+
+    // Try DD/MM/YYYY fallback
     const parts = value.split("/");
-    if (parts.length === 3) {
-        const month = parseInt(parts[0],10)-1;
-        const day = parseInt(parts[1],10);
-        const year = parseInt(parts[2],10);
-        const date = new Date(year, month, day);
-        if (!isNaN(date.getTime())) return date;
+    if(parts.length === 3){
+        let day = parseInt(parts[0],10);
+        let month = parseInt(parts[1],10)-1;
+        let year = parseInt(parts[2],10);
+        const d = new Date(year, month, day);
+        if(!isNaN(d.getTime())) return d;
     }
-    return new Date(0);
+
+    return null; // return null if unable to parse
 }
 
 async function fetchTasks() {
@@ -171,51 +219,92 @@ async function fetchTasks() {
         const res = await fetch(SHEET_URL);
         const text = await res.text();
         const json = JSON.parse(text.substr(47).slice(0, -2));
-        tasks = json.table.rows.map((row,i) => {
-            let obj = {};
-            json.table.cols.forEach((col,j) => { obj[col.label] = row.c[j] ? row.c[j].v : ""; });
-            obj["_id"] = i;
-            if(obj["Agent Assigned"]) agents.add(obj["Agent Assigned"]);
-            if(obj["TM's Note"]) sbsSet.add(obj["TM's Note"]);
-            obj._dateParsed = parseSheetDate(obj["Date Assigned"]);
-            return obj;
+       tasks = json.table.rows.flatMap((row, i) => {
+        let obj = {};
+        json.table.cols.forEach((col, j) => { 
+            obj[col.label] = row.c[j] ? row.c[j].v : ""; 
         });
-        tasks.sort((a,b) => a._id - b._id);
-        tasks.reverse();
-        // Count current assigned tasks for the logged-in agent
+        obj["_id"] = i;
+        obj._dateParsed = parseSheetDate(obj["Date Assigned"]);
+
+        // Get all agents this task should belong to
+        const agentsAssigned = (obj["Agent Assigned"] || "")
+            .split(",")                  // split by comma
+            .map(a => a.trim())          // trim spaces
+            .map(a => agentMap[a] || a) // map if exists
+            .filter(a => a);             // remove empty
+
+        // Add each agent separately
+        return agentsAssigned.map(agent => {
+            const copy = {...obj};
+            copy["Agent Assigned"] = agent;
+            if(agent) agents.add(agent);         // add to agents set
+            if(obj["TM's Note"]) sbsSet.add(obj["TM's Note"]); // add TM's Note
+            return copy;
+        });
+    });
+
+
+        tasks.sort((a,b) => b._id - a._id); // newest first
+
         const loginName = localStorage.getItem("agent");
         if (loginName) {
             const currentCount = tasks.filter(t => t["Agent Assigned"] === loginName).length;
-
             if (lastTaskCount > 0 && currentCount > lastTaskCount) {
-                // new task(s) assigned since last fetch
                 newTaskCount += (currentCount - lastTaskCount);
                 updateFavicon(newTaskCount);
             }
-
             lastTaskCount = currentCount;
         }
 
         updateLastUpdated();
+        updateStatusSummary();
+        updateSBSSummary();
     } catch(err) { console.error("Error fetching tasks:", err); }
 }
 
 function setupLogin() {
+    const agentMap = {
+        "Adriana, Venz": "Venz",
+        "Marisa, Venz": "Venz",
+        "Venz, Adriana": "Venz",
+        "Adriana, Marisa": "Marisa",
+        "Marisa, Adriana": "Marisa",
+        "Marisa, Marissa C": "Marisa",
+        "Marisa, Venz": "Marisa",
+        "Adriana, Peter": "Peter",
+        "Peter, Jonathan": "Peter",
+        "Adriana, Ezequel": "Ezequel",
+        "Raven, Andrew": "Raven",
+        "Adriana, Sedney": "Sedney",
+        "Adriana, Jhonmar": "Jhonmar",
+        "Adriana, Jade": "Jade",
+    };
+
     const loginName = localStorage.getItem("agent");
     if(loginName){
         document.getElementById("logoutBtn").style.display="inline-block";
-        document.getElementById("loginDropdownContainer").innerHTML=`<span class="fw-bold text-primary">${loginName}</span>`;
+        document.getElementById("loginDropdownContainer").innerHTML = `<span class="fw-bold text-primary">${loginName}</span>`;
     } else {
+        // Normalize agents for dropdown
+        let normalizedAgents = new Set();
+        agents.forEach(agent => {
+            if(agentMap[agent]) normalizedAgents.add(agentMap[agent]);
+            else normalizedAgents.add(agent);
+        });
+
         let dropdownHTML = `<select class="form-select form-select-sm" id="loginDropdown"><option selected disabled>Login as...</option>`;
-        agents.forEach(agent => { dropdownHTML += `<option value="${agent}">${agent}</option>`; });
+        normalizedAgents.forEach(agent => { dropdownHTML += `<option value="${agent}">${agent}</option>`; });
         dropdownHTML += `</select>`;
         document.getElementById("loginDropdownContainer").innerHTML = dropdownHTML;
+
         document.getElementById("loginDropdown").addEventListener("change", (e) => {
             localStorage.setItem("agent", e.target.value);
             location.reload();
         });
     }
 }
+
 
 function setupStatusFilter(){
     const statusFilter = document.getElementById("statusFilter");
@@ -242,18 +331,78 @@ function filterTasks(isRefresh=false){
     }
     filtered = filtered.filter(t => Object.values(t).some(val => String(val).toLowerCase().includes(search)));
     renderTasks(filtered,isRefresh);
+    //updateStatusSummary(filtered);
+    //updateSBSSummary(filtered);
+    updateTotalTasks(filtered);
 }
+
+function updateStatusSummary() {
+    const summaryEl = document.getElementById("statusSummary");
+    const loginName = localStorage.getItem("agent");
+    if(!loginName) return;
+
+    // Count all tasks for this agent, ignoring filters
+    const data = tasks.filter(t => t["Agent Assigned"] === loginName);
+    const counts = {ongoing:0, completed:0, cancelled:0, assigned:0};
+    data.forEach(t => {
+        const s = (t["Status"]||"").toLowerCase();
+        if(counts[s] !== undefined) counts[s]++;
+    });
+
+    summaryEl.innerHTML = `
+        <div class="status-badge status-assigned">Total Task: ${data.length}</div>
+        <div class="status-badge status-ongoing">Ongoing: ${counts.ongoing}</div>
+        <div class="status-badge status-completed">Completed: ${counts.completed}</div>
+        <div class="status-badge status-cancelled">Cancelled: ${counts.cancelled}</div>
+        <div class="status-badge status-assigned">Assigned: ${counts.assigned}</div>
+    `;
+}
+
+function updateSBSSummary(filteredTasks=null){
+    const summaryEl = document.getElementById("sbsSummary");
+    const loginName = localStorage.getItem("agent");
+    if(!loginName) return;
+
+    const data = filteredTasks || tasks.filter(t => t["Agent Assigned"] === loginName);
+
+    // Total SBS: count all tasks with TM's Note
+    const totalSBS = data.filter(t => t["TM's Note"]).length;
+
+    // Monthly SBS: parse date safely
+    const monthCounts = {};
+    data.forEach(t => {
+        if(t["TM's Note"]){
+    let date = t._dateParsed || parseSheetDate(t["Date Assigned"]);
+    if(date){ // only count valid dates
+        const key = `${date.getFullYear()}-${date.getMonth()+1}`;
+        if(!monthCounts[key]) monthCounts[key]=0;
+        monthCounts[key]++;
+    }
+}
+
+    });
+
+    // Render Total SBS
+    summaryEl.innerHTML = `<div>Total SBS: ${totalSBS}</div>`;
+
+    // Render monthly SBS counts
+    Object.keys(monthCounts).sort().forEach(k => {
+        const [y, m] = k.split("-");
+        summaryEl.innerHTML += `<div>${y}/${m}: ${monthCounts[k]}</div>`;
+    });
+}
+
+
+
 function updateFavicon(count) {
     const canvas = document.createElement("canvas");
     canvas.width = 64;
     canvas.height = 64;
     const ctx = canvas.getContext("2d");
 
-    // Draw base background (your normal favicon color)
     ctx.fillStyle = "#1a1a1a";
     ctx.fillRect(0, 0, 64, 64);
 
-    // If new tasks → draw red circle + number
     if (count > 0) {
         ctx.fillStyle = "red";
         ctx.beginPath();
@@ -304,36 +453,120 @@ function renderTasks(taskArray,isRefresh=false){
     renderPagination(totalPages);
 }
 
-function showDetail(task){
-    // hide the task grid + pagination
-    document.getElementById("taskList").style.display="none";
-    document.getElementById("pagination").style.display="none";
-    document.getElementById("filterBar").style.display="none";
+function showDetail(task) {
+    const taskListEl = document.getElementById("taskList");
+    const paginationEl = document.getElementById("pagination");
+    const filterBarEl = document.getElementById("filterBar");
+    const detailEl = document.getElementById("taskDetail");
 
-    const detail = document.getElementById("taskDetail");
-    detail.style.display="block";
-    detail.innerHTML = `
-        <button class="btn btn-sm btn-outline-secondary mb-3" id="backBtn">
+    // Hide main view
+    taskListEl.style.display = "none";
+    paginationEl.style.display = "none";
+    filterBarEl.style.display = "none";
+    detailEl.style.display = "block";
+
+    const cardTitle = task["Tasks"] || "Untitled";
+    const brand = (task["Brand"] || "nobrand").toLowerCase();
+    const status = (task["Status"] || "N/A").toLowerCase();
+    const dateAssigned = task["Date Assigned"] || "N/A";
+    const sbsNote = task["TM's Note"] || "";
+    const bcLink = task["BC Link"] || "#";
+
+    // Map status to badge class
+    function statusClass(s) {
+        if (s === "completed") return "status-completed";
+        if (s === "ongoing") return "status-ongoing";
+        if (s === "cancelled") return "status-cancelled";
+        if (s === "assigned") return "status-assigned";
+        return "badge bg-secondary";
+    }
+
+    // Categories (replace with your full categories)
+    const categories = { "Validation": [ "[brand]-validating-data for new supplier", "[brand]-validating-upc list source" ], "Analysis": [ "[brand]-analyzing-task prioritization", "[brand]-analyzing-new supplier source", "[brand]-analyzing-existing supplier source", "[brand]-analyzing-bulk order source", "[brand]-analyzing-prebook order source", "[brand]-analyzing-inventory for deletion", "[brand]-analyzing-listing loader request", "[brand]-analyzing-shopify source", "analyzing-manage experiment", "[brand]-analyzing-shopkeep source" ], "Gathering Data": [ "[brand]-gathering-new supplier data", "[brand]-gathering-existing supplier data", "[brand]-gathering-bulk/preebook data", "[brand]-gathering-enhancement data", "[brand]-gathering-flat file data", "[brand]-gathering-pre existing asins", "[brand]-gathering-skus for deletion", "[brand]-gathering-brand store data", "[brand]-gathering-shopify data", "[brand]-gathering-shopkeep data", "[brand]-gathering-skus for deletion", "[brand]-gathering-SIPV", "[brand]-gathering-manage experiment", "all brands-gathering-voice of the customer", "all brands-gathering-suppressed listings", "all brands-gathering-stranded listings", "all brands-gathering-standalone listings" ], "Creation": [ "[brand]-creating-new supplier masterlist", "[brand]-creating-existing supplier masterlist", "[brand]-creating- bulk/prebook masterlist", "[brand]-creating-new supplier listing loader file", "[brand]-creating-existing supplier listing loader file", "[brand]-creating-bulk/prebook listing loader file", "[brand]-creating-new supplier ilf", "[brand]-creating-existing supplier ilf", "[brand]-creating-bulk/prebook ilf", "[brand]-creating-new supplier cost sheet", "[brand]-creating-new supplier sku upc list", "[brand]-creating-existing supplier cost sheet", "[brand]-creating-existing supplier sku upc list", "[brand]-creating-bulk/prebook cost sheet", "[brand]-creating-bulk/prebook sku upc list", "[brand]-creating-existing supplier advertising campaign list", "[brand]-creating-flat file enhancement", "[brand]-creating-flat file listing concern", "creating-manage experiment", "[brand]-creating-ebc enhancement" ], "Verification / Image Update": [ "[brand]-verifying-upc match manual", "[brand]-verifying-data central result", "[brand]-verifying-listing loader request", "[brand]-verifying-image urls", "[brand]-enhancing-images for enhancement", "[brand]-updating-sas flat file", "[brand]-updating-listing in amazon", "[brand]-updating-edit page manually enhancement" ], "Review / Upload": [ "[brand]-reviewing-all files", "[brand]-reviewing-newly uploaded listings", "[brand]-uploading-ilf", "[brand]-uploading-flat file", "[brand]-uploading-shipping plan", "[brand]-uploading-weights and dimensions", "[brand]-uploading-video", "[brand]-uploading-images", "[brand]-attaching-files in bc", "[brand]-reviewing-all files enhancement", "[brand]-attaching-files in bc enhancement", "[brand]-uploading-flat file enhancement", "[brand]-uploading-video enhancement" ], "Investigation / Fixing / Correction": [ "[brand]-investigating-listing issue", "[brand]-fixing-suppressed/quality alerts", "[brand]-fixing-stranded inventory", "[brand]-fixing-standalone", "[brand]-correcting-masterlist file", "[brand]-correcting-ilf", "[brand]-correcting-cost sheet", "[brand]-correcting-sku-upc list", "[brand]-correcting-flatfile error", "[brand]-investigating-pesticide marking", "[brand]-fixing-listing issue", "[brand]-investigating-listing enhancement", "[brand]-correcting-flatfile error enhancement", "[brand]-investigating-SIP", "[brand]-investigating-policy warning", "[brand]-investigating-inaccurate condition complaint" ], "Update / Send & Monitor Case": [ "[brand]-updating-trackers", "[brand]-updating-ebc", "[brand]-updating-search terms", "[brand]-sending-amazon case", "[brand]-sending-sas email", "[brand]-checking-amazon case & ff ups", "[brand]-checking-sas response", "[brand]-sending-sas ops", "[brand]-sending-amazon case enhancement", "[brand]-checking-amazon case & ff ups enhancement", "[brand]-updating-ebc enhancement", "[brand]-updating-search terms enhancement", "[brand]-sending-appeal" ], "Monitoring": [ "none-checking-skype concerns", "none-checking-email concerns", "none-checking-basecamp notifications", "none-prioritizing tasks", "none-addressing-concerns-via skype", "none-addressing-concerns-via email", "none-addressing-concerns-via basecamp", "[brand]-logging-in 2P account", "[brand]-logging-in 1P account" ], "Admin": [ "admin-break", "admin-training:[task]-{person}", "admin-feedbacking-[name of person/group]", "admin-assisting-[task] [name of person/group]", "admin-meeting-{name of person/group}", "admin-coaching-{name of person/group}", "sbs-certifying-[task name]-[name of agent]", "admin-observing:[task]-[name of person]", "admin-meeting-team-listing ex", "admin-1on1-[name]", "[brand]-creating-flat file", "[brand]-updating-listing in amazon (manual)", "[brand]-creating-listing in amazon (manual)", "[brand]-creating-deletion file", "[brand]-gathering-images for EBC", "[brand]-creating-ebc enhancement", "[brand]-updating-ebc enhancement", "[brand]-certify-" ] };
+    // Render templates
+    let rendered = "";
+    for (const [header, items] of Object.entries(categories)) {
+        const processed = items.map(t => {
+            const line = t.includes("[brand]") ? t.replace(/\[brand\]/g, brand) : `${brand}-${t}`;
+            return `${line} (${cardTitle})`;
+        });
+
+        rendered += `
+        <h6 class="mt-3 mb-2 fw-bold text-primary">${header}</h6>
+        <div class="row">
+            ${processed.map(item => `
+                <div class="col-md-6 mb-2">
+                    <div class="task-item d-flex align-items-center border rounded px-2 py-1 small bg-light text-truncate">
+                        <span class="flex-grow-1 me-2">${item}</span>
+                        <button class="btn btn-sm btn-outline-secondary copyBtn" data-copy="${item}" title="Copy">📋</button>
+                    </div>
+                </div>
+            `).join("")}
+        </div>
+        `;
+    }
+
+    // Inject detail HTML including top info line with compact badges
+    detailEl.innerHTML = `
+        <button class="btn btn-sm btn-outline-secondary mb-2" id="backBtn">
             <i class="bi bi-arrow-left"></i> Back to Tasks
         </button>
-        <h5 class="mb-3">${task["Tasks"]||"Untitled"}</h5>
-        <p><strong>Brand:</strong> ${task["Brand"]||"N/A"}</p>
-        <p><strong>Main Task:</strong> ${task["Task"]||"N/A"}</p>
-        <p><strong>Sub Task:</strong> ${task["Sub-Task"]||"N/A"}</p>
-        <p><strong>Status:</strong> ${task["Status"]||"N/A"}</p>
-        <p><strong>Date Assigned:</strong> ${task["Date Assigned"]||"N/A"}</p>
-        <p><strong>Agent Assigned:</strong> ${task["Agent Assigned"]||"N/A"}</p>
-        <p><strong>TM's Note:</strong> ${task["TM's Note"]||"N/A"}</p>
+
+        <h5 class="mb-2">${cardTitle}</h5>
+        <div class="mb-3 d-flex flex-wrap gap-1 align-items-center" style="font-size: 0.8rem;">
+            <span class="badge bg-primary">${brand}</span>
+            <span class="badge ${statusClass(status)}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+            ${sbsNote ? `<span class="badge bg-warning text-dark">${sbsNote}</span>` : ""}
+            <span class="text-muted">📅 ${dateAssigned}</span>
+            ${bcLink !== "#" ? `<a href="${bcLink}" target="_blank" class="text-decoration-none">🔗 BC Link</a>` : ""}
+        </div>
+
+        <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" placeholder="Search inside tasks...">
+        <div id="templateList">${rendered}</div>
     `;
 
-    document.getElementById("backBtn").addEventListener("click", ()=>{
-        // show the grid back
-        document.getElementById("taskList").style.display="grid";
-        document.getElementById("pagination").style.display="flex";
-        document.getElementById("filterBar").style.display="flex";
-        detail.style.display="none";
+    // Copy button functionality
+    detailEl.querySelectorAll(".copyBtn").forEach(btn => {
+        btn.addEventListener("click", e => {
+            e.stopPropagation();
+            const text = btn.getAttribute("data-copy");
+            navigator.clipboard.writeText(text).then(() => {
+                btn.innerText = "✅";
+                setTimeout(() => btn.innerText = "📋", 1000);
+            }).catch(err => console.error("Copy failed", err));
+        });
+    });
+
+    // Template search filter
+    document.getElementById("templateSearch").addEventListener("input", e => {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll("#templateList h6").forEach(header => {
+            const section = header.nextElementSibling;
+            let anyVisible = false;
+
+            section.querySelectorAll(".col-md-6").forEach(div => {
+                const match = div.innerText.toLowerCase().includes(term);
+                div.style.display = match ? "" : "none";
+                if (match) anyVisible = true;
+            });
+
+            header.style.display = anyVisible ? "" : "none";
+            section.style.display = anyVisible ? "" : "none";
+        });
+    });
+
+    // Back button
+    document.getElementById("backBtn").addEventListener("click", () => {
+        taskListEl.style.display = "grid";
+        paginationEl.style.display = "flex";
+        filterBarEl.style.display = "flex";
+        detailEl.style.display = "none";
     });
 }
+
+
+
+
 function statusClass(status){
     if(status==="completed") return "status-completed";
     if(status==="ongoing") return "status-ongoing";
@@ -378,6 +611,14 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
+function updateTotalTasks(filteredTasks=null){
+    const el = document.getElementById("totalTasksSummary");
+    const loginName = localStorage.getItem("agent");
+    if(!loginName) return;
+
+    const data = filteredTasks || tasks.filter(t => t["Agent Assigned"] === loginName);
+    el.innerHTML = `<div>Total Tasks: ${data.length}</div>`;
+}
 </script>
 </body>
 </html>
