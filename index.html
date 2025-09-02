@@ -426,18 +426,21 @@ function updateFavicon(count) {
     document.head.appendChild(link);
 }
 
-function renderTasks(taskArray,isRefresh=false){
+function renderTasks(taskArray){
     const taskList = document.getElementById("taskList");
+    taskList.innerHTML = ""; // always clear first
+
     const totalPages = Math.ceil(taskArray.length/tasksPerPage);
     const start = (currentPage-1)*tasksPerPage;
     const paginated = taskArray.slice(start,start+tasksPerPage);
-    if(!isRefresh) taskList.innerHTML="";
-    paginated.forEach(t=>{
+
+    paginated.forEach(t => {
         const status = (t["Status"]||"").toLowerCase();
         const bcLink = t["BC Link"] || "#";
         const brand = t["Brand"] || "N/A";
+
         const card = document.createElement("div");
-        card.className="task-card";
+        card.className = "task-card";
         card.innerHTML = `
             <div>
                 <div class="task-title">${t["Tasks"]||"Untitled"}</div>
@@ -454,8 +457,10 @@ function renderTasks(taskArray,isRefresh=false){
         });
         taskList.appendChild(card);
     });
+
     renderPagination(totalPages);
 }
+
 
 function showDetail(task) {
     const taskListEl = document.getElementById("taskList");
@@ -638,4 +643,5 @@ function updateTotalTasks(filteredTasks=null){
 </script>
 </body>
 </html>
+
 
