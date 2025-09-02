@@ -318,23 +318,27 @@ function capitalize(str){ return str.charAt(0).toUpperCase() + str.slice(1); }
 function filterTasks(isRefresh=false){
     const loginName = localStorage.getItem("agent");
     if(!loginName) return;
-    const search = document.getElementById("searchBar").value.toLowerCase();
-    const statusFilter = document.getElementById("statusFilter").value;
-    let filtered = tasks.filter(t => t["Agent Assigned"]===loginName);
-    if(statusFilter !== "all"){
-        if(statusFilter.startsWith("SBS:")){
-            const sbsValue = statusFilter.slice(4);
-            filtered = filtered.filter(t => t["TM's Note"] === sbsValue);
-        } else {
-            filtered = filtered.filter(t => (t["Status"]||"").toLowerCase()===statusFilter);
+
+    fetchTasks().then(() => { // <-- fetch latest tasks first
+        const search = document.getElementById("searchBar").value.toLowerCase();
+        const statusFilter = document.getElementById("statusFilter").value;
+        let filtered = tasks.filter(t => t["Agent Assigned"]===loginName);
+        if(statusFilter !== "all"){
+            if(statusFilter.startsWith("SBS:")){
+                const sbsValue = statusFilter.slice(4);
+                filtered = filtered.filter(t => t["TM's Note"] === sbsValue);
+            } else {
+                filtered = filtered.filter(t => (t["Status"]||"").toLowerCase()===statusFilter);
+            }
         }
-    }
-    filtered = filtered.filter(t => Object.values(t).some(val => String(val).toLowerCase().includes(search)));
+        filtered = filtered.filter(t => Object.values(t).some(val => String(val).toLowerCase().includes(search)));
     renderTasks(filtered,isRefresh);
     //updateStatusSummary(filtered);
     //updateSBSSummary(filtered);
     updateTotalTasks(filtered);
+    });
 }
+
 
 function updateStatusSummary() {
     const summaryEl = document.getElementById("statusSummary");
@@ -634,3 +638,4 @@ function updateTotalTasks(filteredTasks=null){
 </script>
 </body>
 </html>
+
