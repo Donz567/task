@@ -110,7 +110,31 @@ body {
 .task-item:hover .copyBtn {
   opacity: 1;
 }
-
+.daily-reminder {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  z-index: 2000;
+  background: #e3f2fd; /* 🔵 light blue instead of yellow */
+  padding: 15px;
+  border: 1px solid #90caf9;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  max-width: 320px;
+}
+.daily-reminder ul {
+  margin: 5px 0;
+  padding-left: 20px;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+}
+.daily-reminder a {
+  margin-left: 6px;
+  font-size: 0.8rem;
+  color: #1565c0;
+  text-decoration: underline;
+}
 </style>
 </head>
 <body>
@@ -156,6 +180,7 @@ let sbsSet = new Set();
 let currentPage = 1;
 let lastTaskCount = 0;  
 let newTaskCount = 0;    
+
 const tasksPerPage = 20;
 const agentMap = {
     "Adriana, Venz": "Venz",
@@ -186,6 +211,59 @@ async function initApp() {
     setupLogin();
     setupStatusFilter();
     filterTasks();
+    requestNotificationPermission();
+  setTimeout(notifyDailyOngoingTasks, 2000); // show reminder shortly after load
+}
+
+function requestNotificationPermission() {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}
+
+function getOngoingTasks() {
+  const loginName = localStorage.getItem("agent");
+  if (!loginName) return [];
+  return tasks.filter(t => t["Agent Assigned"] === loginName && 
+                          (t["Status"]||"").toLowerCase() === "ongoing");
+}
+function notifyDailyOngoingTasks() {
+  const ongoing = getOngoingTasks();
+  if (ongoing.length === 0) return;
+
+  const today = new Date().toDateString();
+  if (localStorage.getItem("lastOngoingNotify") === today) return;
+
+  // Prepare list with Basecamp links
+  const listHtml = ongoing.map(t => {
+    let linkHtml = t["BC Link"] 
+      ? `<a href="${t["BC Link"]}" target="_blank">(BC)</a>` 
+      : "";
+    return `<li>${t["Tasks"]} ${linkHtml}</li>`;
+  }).join("");
+
+  // Browser notification
+  if ("Notification" in window && Notification.permission === "granted") {
+    const message = ongoing.map(t => `- ${t["Tasks"]}`).join("\n");
+    new Notification("Ongoing Tasks Reminder", {
+      body: message,
+      icon: "https://cdn-icons-png.flaticon.com/512/4436/4436481.png"
+    });
+  }
+
+  // In-app popup
+  const container = document.createElement("div");
+  container.className = "daily-reminder";
+  container.innerHTML = `
+    <strong>🔔 Daily Reminder</strong>
+    <div>You have <b>${ongoing.length}</b> ongoing tasks:</div>
+    <ul>${listHtml}</ul>
+    <button class="btn btn-sm btn-outline-secondary mt-2">Dismiss</button>
+  `;
+  document.body.appendChild(container);
+  container.querySelector("button").onclick = () => container.remove();
+
+  localStorage.setItem("lastOngoingNotify", today);
 }
 
 function parseSheetDate(value){
@@ -339,7 +417,6 @@ function filterTasks(isRefresh=false){
     });
 }
 
-
 function updateStatusSummary() {
     const summaryEl = document.getElementById("statusSummary");
     const loginName = localStorage.getItem("agent");
@@ -460,7 +537,6 @@ function renderTasks(taskArray){
 
     renderPagination(totalPages);
 }
-
 
 function showDetail(task) {
     const taskListEl = document.getElementById("taskList");
@@ -643,5 +719,3 @@ function updateTotalTasks(filteredTasks=null){
 </script>
 </body>
 </html>
-
-
