@@ -135,6 +135,26 @@ body {
   color: #1565c0;
   text-decoration: underline;
 }
+.task-item {
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.task-item:hover {
+  background-color: #e8f5e9; /* light green */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.task-item .copied-indicator {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85em;
+  color: #28a745; /* Bootstrap success green */
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -593,9 +613,8 @@ function showDetail(task) {
         <div class="row">
             ${processed.map(item => `
                 <div class="col-md-6 mb-2">
-                    <div class="task-item d-flex align-items-center border rounded px-2 py-1 small bg-light text-truncate">
+                    <div class="task-item d-flex align-items-center border rounded px-2 py-1 small bg-light text-truncate" title="Click to copy">
                         <span class="flex-grow-1 me-2">${item}</span>
-                        <button class="btn btn-sm btn-outline-secondary copyBtn" data-copy="${item}" title="Copy">📋</button>
                     </div>
                 </div>
             `).join("")}
@@ -623,16 +642,26 @@ function showDetail(task) {
     `;
 
     // Copy button functionality
-    detailEl.querySelectorAll(".copyBtn").forEach(btn => {
-        btn.addEventListener("click", e => {
-            e.stopPropagation();
-            const text = btn.getAttribute("data-copy");
-            navigator.clipboard.writeText(text).then(() => {
-                btn.innerText = "✅";
-                setTimeout(() => btn.innerText = "📋", 1000);
-            }).catch(err => console.error("Copy failed", err));
-        });
+    detailEl.querySelectorAll(".task-item").forEach(item => {
+    item.addEventListener("click", e => {
+        e.stopPropagation();
+        const text = item.querySelector("span").innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            // Remove any old indicator first
+            const old = item.querySelector(".copied-indicator");
+            if (old) old.remove();
+
+            // Add a copied indicator
+            const indicator = document.createElement("span");
+            indicator.className = "copied-indicator";
+            indicator.innerText = "✅ Copied!";
+            item.appendChild(indicator);
+
+            // Remove after 1s
+            setTimeout(() => indicator.remove(), 1000);
+        }).catch(err => console.error("Copy failed", err));
     });
+});
 
     // Template search filter
     document.getElementById("templateSearch").addEventListener("input", e => {
