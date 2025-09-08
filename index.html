@@ -155,6 +155,21 @@ body {
   color: #28a745; /* Bootstrap success green */
   font-weight: bold;
 }
+.task-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.task-bg-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(0%, -50%); /* centers both vertically & horizontally */
+  width: 120px;
+  height: 120px;
+  opacity: 0.2;   /* lighter so it doesn’t block text */
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -189,7 +204,7 @@ body {
     <ul class="pagination justify-content-center" id="pagination"></ul>
   </nav>
 </div>
-
+<script src="https://cdn.lordicon.com/lordicon.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/1AEFog4va5g5Teg5yiOamSlwwlB4g-UOGT0NUkgz7UBA/gviz/tq?tqx=out:json";
@@ -548,6 +563,7 @@ function renderTasks(taskArray){
                 <div class="task-info"><i class="bi bi-calendar-event"></i> ${t["Date Assigned"] || "N/A"}</div>
             </div>
             <a href="${bcLink}" target="_blank" class="bc-btn"><i class="bi bi-link-45deg"></i> BC Link</a>
+            ${getBackgroundIcon(status)}
         `;
         card.addEventListener("click", (e)=>{
             if (!e.target.closest(".bc-btn")) showDetail(t);
@@ -556,6 +572,46 @@ function renderTasks(taskArray){
     });
 
     renderPagination(totalPages);
+}
+function getBackgroundIcon(status) {
+    switch(status) {
+        case "ongoing": 
+            return `
+                <lord-icon
+                    src="https://cdn.lordicon.com/kvsszuvz.json"
+                    trigger="loop"
+                    delay="2000"
+                    colors="primary:#0d6efd,secondary:#66b2ff"
+                    class="task-bg-icon">
+                </lord-icon>`;
+        case "completed": 
+            return `
+                <lord-icon
+                    src="https://cdn.lordicon.com/nobciafz.json"
+                    trigger="in"
+                    colors="primary:#198754,secondary:#38d39f"
+                    class="task-bg-icon">
+                </lord-icon>`;
+        case "cancelled": 
+            return `
+                <lord-icon
+                    src="https://cdn.lordicon.com/rslnizbt.json"
+                    trigger="hover"
+                    colors="primary:#dc3545,secondary:#ff6b6b"
+                    class="task-bg-icon">
+                </lord-icon>`;
+        case "assigned": 
+            return `
+                <lord-icon
+                    src="https://cdn.lordicon.com/ghhwiltn.json"
+                    trigger="loop"
+                    delay="2500"
+                    colors="primary:#ffc107,secondary:#ffe066"
+                    class="task-bg-icon">
+                </lord-icon>`;
+        default: 
+            return ``;
+    }
 }
 
 function showDetail(task) {
