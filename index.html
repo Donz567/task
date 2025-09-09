@@ -665,7 +665,7 @@ function showDetail(task) {
     const cardTitle = task["Tasks"] || "Untitled";
     const brand = (task["Brand"] || "nobrand").toLowerCase();
     const status = (task["Status"] || "N/A").toLowerCase();
-    const dateAssigned = task["Date Assigned"] || "N/A";
+    const dateAssigned = formatDate(task._dateParsed);
     const sbsNote = task["TM's Note"] || "";
     const bcLink = task["BC Link"] || "#";
 
