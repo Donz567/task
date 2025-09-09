@@ -301,32 +301,38 @@ function notifyDailyOngoingTasks() {
   localStorage.setItem("lastOngoingNotify", today);
 }
 
-function parseSheetDate(value){
-    if(!value) return null;
+function parseSheetDate(value) {
+    if (!value) return null;
 
-    // Try numeric (Google Sheets epoch)
-    if(!isNaN(value)){
+    // Check if value is in "Date(YYYY,MM,DD)" format
+    const match = value.match(/Date\((\d+),(\d+),(\d+)\)/);
+    if (match) {
+        const year = parseInt(match[1]);
+        const month = parseInt(match[2]); // JS months are 0-indexed
+        const day = parseInt(match[3]);
+        return new Date(year, month, day);
+    }
+
+    // Fallback: try numeric (Google Sheets epoch)
+    if (!isNaN(value)) {
         const epoch = new Date(1899, 11, 30);
-        return new Date(epoch.getTime() + Number(value) * 24*60*60*1000);
+        return new Date(epoch.getTime() + Number(value) * 24 * 60 * 60 * 1000);
     }
 
-    // Try standard JS date parsing
+    // Fallback: try standard JS date parsing
     const date = new Date(value);
-    if(!isNaN(date.getTime())) return date;
+    if (!isNaN(date)) return date;
 
-    // Try DD/MM/YYYY fallback
-    const parts = value.split("/");
-    if(parts.length === 3){
-        let day = parseInt(parts[0],10);
-        let month = parseInt(parts[1],10)-1;
-        let year = parseInt(parts[2],10);
-        const d = new Date(year, month, day);
-        if(!isNaN(d.getTime())) return d;
-    }
-
-    return null; // return null if unable to parse
+    return null; // failed to parse
 }
 
+function formatDate(date) {
+    if (!date) return "N/A";
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2,'0'); // add +1 here
+    const d = String(date.getDate()).padStart(2,'0');
+    return `${y}-${m}-${d}`;
+}
 async function fetchTasks() {
     try {
         const res = await fetch(SHEET_URL);
@@ -338,8 +344,9 @@ async function fetchTasks() {
             obj[col.label] = row.c[j] ? row.c[j].v : ""; 
         });
         obj["_id"] = i;
+         console.log("Raw Date Assigned:", obj["Date Assigned"]);
         obj._dateParsed = parseSheetDate(obj["Date Assigned"]);
-
+console.log("Parsed Date:", obj._dateParsed);
         // Get all agents this task should belong to
         const agentsAssigned = (obj["Agent Assigned"] || "")
             .split(",")                  // split by comma
@@ -474,38 +481,18 @@ function updateStatusSummary() {
     `;
 }
 
-function updateSBSSummary(filteredTasks=null){
+function updateSBSSummary(filteredTasks = null) {
     const summaryEl = document.getElementById("sbsSummary");
     const loginName = localStorage.getItem("agent");
-    if(!loginName) return;
+    if (!loginName) return;
 
     const data = filteredTasks || tasks.filter(t => t["Agent Assigned"] === loginName);
 
     // Total SBS: count all tasks with TM's Note
     const totalSBS = data.filter(t => t["TM's Note"]).length;
 
-    // Monthly SBS: parse date safely
-    const monthCounts = {};
-    data.forEach(t => {
-        if(t["TM's Note"]){
-    let date = t._dateParsed || parseSheetDate(t["Date Assigned"]);
-    if(date){ // only count valid dates
-        const key = `${date.getFullYear()}-${date.getMonth()+1}`;
-        if(!monthCounts[key]) monthCounts[key]=0;
-        monthCounts[key]++;
-    }
-}
-
-    });
-
-    // Render Total SBS
+    // Display only Total SBS
     summaryEl.innerHTML = `<div>Total SBS: ${totalSBS}</div>`;
-
-    // Render monthly SBS counts
-    Object.keys(monthCounts).sort().forEach(k => {
-        const [y, m] = k.split("-");
-        summaryEl.innerHTML += `<div>${y}/${m}: ${monthCounts[k]}</div>`;
-    });
 }
 
 
@@ -556,13 +543,62 @@ function renderTasks(taskArray){
         card.innerHTML = `
             <div>
                 <div class="task-title">${t["Tasks"]||"Untitled"}</div>
-                <div class="task-info"><i class="bi bi-briefcase"></i> <span class="label-badge label-brand-text">${brand}</span></div>
-                <div class="task-info"><i class="bi bi-list"></i> <span class="label-badge label-task-text">${t["Task"]||"N/A"}</span></div>
-                <div class="task-info"><i class="bi bi-check2-square"></i> <span class="label-badge label-subtask-text">${t["Sub-Task"]||"N/A"}</span></div>
-                <div class="task-info"><span class="status-badge ${statusClass(status)}">${capitalize(t["Status"]||"N/A")}</span></div>
-                <div class="task-info"><i class="bi bi-calendar-event"></i> ${t["Date Assigned"] || "N/A"}</div>
+
+                <!-- Brand -->
+                <div class="task-info">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/dxjqoygy.json"
+                        trigger="loop"
+                        colors="primary:#64b5f6"
+                        style="width:18px;height:18px">
+                    </lord-icon>
+                    <span class="label-badge label-brand-text">${brand}</span>
+                </div>
+
+                <!-- Task -->
+                <div class="task-info">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/wxnxiano.json"
+                        trigger="loop"
+                        colors="primary:#ffd54f"
+                        style="width:18px;height:18px">
+                    </lord-icon>
+                    <span class="label-badge label-task-text">${t["Task"]||"N/A"}</span>
+                </div>
+
+                <!-- Sub-Task -->
+                <div class="task-info">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/qtqvorle.json"
+                        trigger="loop"
+                        colors="primary:#81c784"
+                        style="width:18px;height:18px">
+                    </lord-icon>
+                    <span class="label-badge label-subtask-text">${t["Sub-Task"]||"N/A"}</span>
+                </div>
+
+                <div class="task-info">
+                    <span class="status-badge ${statusClass(status)}">${capitalize(t["Status"]||"N/A")}</span>
+                </div>
+                <div class="task-info">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/mgmiqlge.json"
+                        trigger="loop"
+                        colors="primary:#0d6efd"
+                        style="width:18px;height:18px">
+                    </lord-icon>
+                     ${formatDate(t._dateParsed) || "N/A"}
+                </div>
             </div>
-            <a href="${bcLink}" target="_blank" class="bc-btn"><i class="bi bi-link-45deg"></i> BC Link</a>
+            <a href="${bcLink}" target="_blank" class="bc-btn">
+                <lord-icon
+                    src="https://cdn.lordicon.com/zmkotitn.json"
+                    trigger="hover"
+                    colors="primary:#ffffff"
+                    style="width:18px;height:18px">
+                </lord-icon>
+                BC Link
+            </a>
             ${getBackgroundIcon(status)}
         `;
         card.addEventListener("click", (e)=>{
