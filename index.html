@@ -156,19 +156,49 @@ body {
   font-weight: bold;
 }
 .task-card {
-  position: relative;
+ position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* pushes button down */
   overflow: hidden;
+  
+}
+.task-card * {
+  position: relative;
+  z-index: 1;   /* keeps text and buttons above watermark */
+}
+.bc-btn-wrapper {
+  margin-top: auto; /* ensures it stays at the bottom */
+  width: 100%;
+}
+
+.bc-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: #0e0f0f; /* Bootstrap primary color */
+  color: white;
+  padding: 5px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.bc-btn:hover {
+  background: #35373b;
+  color: white;
 }
 
 .task-bg-icon {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(0%, -50%); /* centers both vertically & horizontally */
-  width: 120px;
-  height: 120px;
-  opacity: 0.2;   /* lighter so it doesn’t block text */
-  pointer-events: none;
+  right: 10px;
+  bottom: 10px;         /* ✅ push icon toward the bottom-right */
+  font-size: 140px;     /* 🔥 big watermark */
+  color: inherit;       /* adapts to card text color */
+  opacity: 0.05;        /* faint like watermark */
+  pointer-events: none; /* not clickable */
+  z-index: 0;           /* stays behind text */
 }
 </style>
 </head>
@@ -204,7 +234,7 @@ body {
     <ul class="pagination justify-content-center" id="pagination"></ul>
   </nav>
 </div>
-<script src="https://cdn.lordicon.com/lordicon.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/1AEFog4va5g5Teg5yiOamSlwwlB4g-UOGT0NUkgz7UBA/gviz/tq?tqx=out:json";
@@ -541,64 +571,42 @@ function renderTasks(taskArray){
         const card = document.createElement("div");
         card.className = "task-card";
         card.innerHTML = `
-            <div>
+            
                 <div class="task-title">${t["Tasks"]||"Untitled"}</div>
 
                 <!-- Brand -->
-                <div class="task-info">
-                    <lord-icon
-                        src="https://cdn.lordicon.com/dxjqoygy.json"
-                        trigger="loop"
-                        colors="primary:#64b5f6"
-                        style="width:18px;height:18px">
-                    </lord-icon>
+              <div class="task-info">
+                    <i class="bi bi-tags text-primary"></i>
                     <span class="label-badge label-brand-text">${brand}</span>
-                </div>
+                  </div>
 
-                <!-- Task -->
-                <div class="task-info">
-                    <lord-icon
-                        src="https://cdn.lordicon.com/wxnxiano.json"
-                        trigger="loop"
-                        colors="primary:#ffd54f"
-                        style="width:18px;height:18px">
-                    </lord-icon>
+                  <div class="task-info">
+                    <i class="bi bi-list-task text-warning"></i>
                     <span class="label-badge label-task-text">${t["Task"]||"N/A"}</span>
-                </div>
+                  </div>
 
-                <!-- Sub-Task -->
-                <div class="task-info">
-                    <lord-icon
-                        src="https://cdn.lordicon.com/qtqvorle.json"
-                        trigger="loop"
-                        colors="primary:#81c784"
-                        style="width:18px;height:18px">
-                    </lord-icon>
+                  <div class="task-info">
+                    <i class="bi bi-check2-square text-success"></i>
                     <span class="label-badge label-subtask-text">${t["Sub-Task"]||"N/A"}</span>
+                  </div>
+                  <!-- Status -->
+                    <div class="task-info">
+                      <i class="bi bi-flag text-info"></i>
+                      <span class="status-badge status-${(t["Status"]||"N/A").toLowerCase()}">
+                        ${t["Status"] || "N/A"}
+                      </span>
+                    </div>
+
+                  <div class="task-info">
+                    <i class="bi bi-calendar-event text-primary"></i>
+                    ${formatDate(t._dateParsed) || "N/A"}
+                  </div>
                 </div>
 
-                <div class="task-info">
-                    <span class="status-badge ${statusClass(status)}">${capitalize(t["Status"]||"N/A")}</span>
-                </div>
-                <div class="task-info">
-                    <lord-icon
-                        src="https://cdn.lordicon.com/mgmiqlge.json"
-                        trigger="loop"
-                        colors="primary:#0d6efd"
-                        style="width:18px;height:18px">
-                    </lord-icon>
-                     ${formatDate(t._dateParsed) || "N/A"}
-                </div>
-            </div>
-            <a href="${bcLink}" target="_blank" class="bc-btn">
-                <lord-icon
-                    src="https://cdn.lordicon.com/zmkotitn.json"
-                    trigger="hover"
-                    colors="primary:#ffffff"
-                    style="width:18px;height:18px">
-                </lord-icon>
-                BC Link
-            </a>
+                <a href="${bcLink}" target="_blank" class="bc-btn">
+                  <i class="bi bi-link-45deg"></i> BC Link
+                </a>
+
             ${getBackgroundIcon(status)}
         `;
         card.addEventListener("click", (e)=>{
@@ -610,44 +618,18 @@ function renderTasks(taskArray){
     renderPagination(totalPages);
 }
 function getBackgroundIcon(status) {
-    switch(status) {
-        case "ongoing": 
-            return `
-                <lord-icon
-                    src="https://cdn.lordicon.com/kvsszuvz.json"
-                    trigger="loop"
-                    delay="2000"
-                    colors="primary:#0d6efd,secondary:#66b2ff"
-                    class="task-bg-icon">
-                </lord-icon>`;
-        case "completed": 
-            return `
-                <lord-icon
-                    src="https://cdn.lordicon.com/nobciafz.json"
-                    trigger="in"
-                    colors="primary:#198754,secondary:#38d39f"
-                    class="task-bg-icon">
-                </lord-icon>`;
-        case "cancelled": 
-            return `
-                <lord-icon
-                    src="https://cdn.lordicon.com/rslnizbt.json"
-                    trigger="hover"
-                    colors="primary:#dc3545,secondary:#ff6b6b"
-                    class="task-bg-icon">
-                </lord-icon>`;
-        case "assigned": 
-            return `
-                <lord-icon
-                    src="https://cdn.lordicon.com/ghhwiltn.json"
-                    trigger="loop"
-                    delay="2500"
-                    colors="primary:#ffc107,secondary:#ffe066"
-                    class="task-bg-icon">
-                </lord-icon>`;
-        default: 
-            return ``;
-    }
+  switch(status) {
+    case "ongoing": 
+      return `<i class="bi bi-hourglass-split task-bg-icon text-primary"></i>`;
+    case "completed": 
+      return `<i class="bi bi-check2-circle task-bg-icon text-success"></i>`;
+    case "cancelled": 
+      return `<i class="bi bi-slash-circle task-bg-icon text-danger"></i>`;
+    case "assigned": 
+      return `<i class="bi bi-person-workspace task-bg-icon text-warning"></i>`;
+    default: 
+      return ``;
+  }
 }
 
 function showDetail(task) {
