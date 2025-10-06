@@ -254,10 +254,27 @@ body {
 .toggle-switch:hover .slider {
   box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
 }
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.85);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
 
 </style>
 </head>
 <body>
+  <!-- Loading Spinner -->
+<div id="loadingOverlay" class="loading-overlay d-none">
+  <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
 <nav class="navbar navbar-expand-lg sticky-top p-3">
   <div class="container-fluid">
     
@@ -266,6 +283,9 @@ body {
     <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
     <button id="generateLogBtn" class="btn btn-outline-success btn-sm">
     <i class="bi bi-file-earmark-excel"></i> Generate Daily Report
+    </button>
+    <button id="viewLogsBtn" class="btn btn-outline-info position-fixed bottom-0 end-0 m-3 shadow">
+      <i class="bi bi-journal-text"></i> View Logs
     </button>
       <div class="status-summary" id="statusSummary"></div>
       <div class="sbs-summary" id="sbsSummary"></div>
@@ -279,6 +299,29 @@ body {
 </nav>
 
 <div class="container py-4">
+
+
+<!-- Logs Modal -->
+<div class="modal fade" id="logsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4">
+      <div class="modal-header bg-primary text-white rounded-top-4">
+        <h5 class="modal-title"><i class="bi bi-journal-text me-2"></i>Daily Work Logs</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div id="logsTableContainer" class="table-responsive">
+          <p class="text-center text-muted mb-0">No logs recorded yet.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
   <div id="filterBar">
     <input type="text" id="searchBar" class="form-control form-control-sm" placeholder="Search tasks">
     <select id="statusFilter" class="form-select form-select-sm">
@@ -390,7 +433,13 @@ function notifyDailyOngoingTasks() {
 
   localStorage.setItem("lastOngoingNotify", today);
 }
+function showLoading() {
+  document.getElementById("loadingOverlay")?.classList.remove("d-none");
+}
 
+function hideLoading() {
+  document.getElementById("loadingOverlay")?.classList.add("d-none");
+}
 function parseSheetDate(value) {
     if (!value) return null;
 
@@ -424,6 +473,8 @@ function formatDate(date) {
     return `${y}-${m}-${d}`;
 }
 async function fetchTasks() {
+  showLoading();
+  try{
     try {
         const res = await fetch(SHEET_URL);
         const text = await res.text();
@@ -471,6 +522,9 @@ console.log("Parsed Date:", obj._dateParsed);
         updateStatusSummary();
         updateSBSSummary();
     } catch(err) { console.error("Error fetching tasks:", err); }
+  }finally{
+    hideLoading();
+  }
 }
 
 function setupLogin() {
@@ -917,6 +971,45 @@ if (toggle.checked) {
     localStorage.setItem("taskLogs", JSON.stringify(logs));
   }
 })();
+
+document.getElementById("viewLogsBtn")?.addEventListener("click", showLogs);
+
+function showLogs() {
+  const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+  const container = document.getElementById("logsTableContainer");
+
+  if (logs.length === 0) {
+    container.innerHTML = `<p class="text-center text-muted mb-0">No logs recorded yet.</p>`;
+  } else {
+    const table = `
+      <table class="table table-hover align-middle">
+        <thead class="table-primary">
+          <tr>
+            <th>Date</th>
+            <th>Brand</th>
+            <th>Task</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${logs
+            .map(
+              (l) => `
+            <tr>
+              <td>${l.date}</td>
+              <td>${l.brand}</td>
+              <td>${l.task}</td>
+            </tr>`
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+    container.innerHTML = table;
+  }
+
+  const modal = new bootstrap.Modal(document.getElementById("logsModal"));
+  modal.show();
+}
 
 
 function statusClass(status){
