@@ -200,13 +200,73 @@ body {
   pointer-events: none; /* not clickable */
   z-index: 0;           /* stays behind text */
 }
+/* --- Stylish Bigger Toggle Switch --- */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 70px;
+  height: 33px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 36px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 25px;
+  width: 25px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* ON State */
+.toggle-switch input:checked + .slider {
+  background-color: #0d6efd;
+  box-shadow: 0 0 10px rgba(13, 110, 253, 0.8);
+}
+
+.toggle-switch input:checked + .slider::before {
+  transform: translateX(34px);
+}
+
+/* Smooth hover */
+.toggle-switch:hover .slider {
+  box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
+}
+
 </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg sticky-top p-3">
   <div class="container-fluid">
+    
     <a class="navbar-brand fw-bold" href="#">📋 Task Manager</a>
+    
     <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+    <button id="generateLogBtn" class="btn btn-outline-success btn-sm">
+    <i class="bi bi-file-earmark-excel"></i> Generate Daily Report
+    </button>
       <div class="status-summary" id="statusSummary"></div>
       <div class="sbs-summary" id="sbsSummary"></div>
       
@@ -698,13 +758,19 @@ function showDetail(task) {
 
     // Inject detail HTML including top info line with compact badges
     detailEl.innerHTML = `
+    <div class="d-flex align-items-center mb-3 gap-3">
         <button class="btn btn-sm btn-outline-secondary mb-2" id="backBtn">
             <i class="bi bi-arrow-left"></i> Back to Tasks
         </button>
-
-        <h5 class="mb-2">${cardTitle}</h5>
+         <label class="toggle-switch">
+            <input type="checkbox" id="logToggle" onchange="toggleLog(this)">
+            <span class="slider"></span>
+        </label>
+  <span class="fw-bold text-secondary">Working?</span>
+    </div>
+        <h5 class="mb-2" id="detailTitle">${cardTitle}</h5>
         <div class="mb-3 d-flex flex-wrap gap-1 align-items-center" style="font-size: 0.8rem;">
-            <span class="badge bg-primary">${brand}</span>
+            <span class="badge bg-primary" id="detailBrand">${brand}</span>
             <span class="badge ${statusClass(status)}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
             ${sbsNote ? `<span class="badge bg-warning text-dark">${sbsNote}</span>` : ""}
             <span class="text-muted">📅 ${dateAssigned}</span>
@@ -762,9 +828,95 @@ function showDetail(task) {
         filterBarEl.style.display = "flex";
         detailEl.style.display = "none";
     });
+    checkLogToggle();
 }
 
+function toggleLog(toggleEl) {
+  const taskTitle = document.getElementById("detailTitle")?.textContent?.trim() || "Unknown Task";
+  const brand = document.getElementById("detailBrand")?.textContent?.trim() || "Unknown Brand";
 
+  const now = new Date();
+  const hour = now.getHours();
+  const workDate = new Date();
+
+  // 12AM–8AM belongs to previous workday
+  if (hour < 8) workDate.setDate(workDate.getDate() - 1);
+  const dateStr = workDate.toISOString().split("T")[0];
+
+  let logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+
+  if (toggleEl.checked) {
+    // check if same task+brand already logged today
+    const already = logs.some(l => l.date === dateStr && l.task === taskTitle && l.brand === brand);
+    if (!already) {
+      logs.push({
+        date: dateStr,
+        task: taskTitle,
+        brand: brand,
+        timestamp: now.toISOString(),
+      });
+      localStorage.setItem("taskLogs", JSON.stringify(logs));
+      showBanner(`Logged "${taskTitle}" (${brand}) for ${dateStr}`, "info");
+    } else {
+      showBanner(`Already logged "${taskTitle}" today`, "primary");
+    }
+  } else {
+    // remove only that task’s record for today
+    logs = logs.filter(l => !(l.date === dateStr && l.task === taskTitle && l.brand === brand));
+    localStorage.setItem("taskLogs", JSON.stringify(logs));
+    showBanner(`Removed "${taskTitle}" from ${dateStr}`, "secondary");
+  }
+}
+
+// When showing details of a task, make toggle reflect that task’s current status
+function checkLogToggle() {
+  const toggle = document.getElementById("logToggle");
+  if (!toggle) return;
+
+  const taskTitle = document.getElementById("detailTitle")?.textContent?.trim() || "";
+  const brand = document.getElementById("detailBrand")?.textContent?.trim() || "";
+
+  const now = new Date();
+  const hour = now.getHours();
+  const workDate = new Date();
+  if (hour < 8) workDate.setDate(workDate.getDate() - 1);
+  const dateStr = workDate.toISOString().split("T")[0];
+
+  const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+  const already = logs.some(l => l.date === dateStr && l.task === taskTitle && l.brand === brand);
+
+  // Only enable toggle within shift (8PM–5AM)
+  if (hour >= 20 || hour < 8) {
+    toggle.checked = already;
+    const label = document.querySelector('.fw-bold.text-secondary');
+if (toggle.checked) {
+  label.style.color = '#0d6efd';
+  label.style.textShadow = '0 0 8px rgba(13,110,253,0.6)';
+} else {
+  label.style.color = '#6c757d';
+  label.style.textShadow = 'none';
+}
+
+    toggle.disabled = false;
+  } else {
+    toggle.checked = false;
+    toggle.disabled = true;
+  }
+  
+}
+
+// Clean up logs for days older than yesterday after 8AM
+(function cleanOldLogs() {
+  const now = new Date();
+  const hour = now.getHours();
+  if (hour >= 8) {
+    let logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+    logs = logs.filter(l => l.date === todayStr);
+    localStorage.setItem("taskLogs", JSON.stringify(logs));
+  }
+})();
 
 
 function statusClass(status){
@@ -796,6 +948,44 @@ function renderPagination(totalPages){
         });
     });
 }
+
+// === Generate and Download Excel Log ===
+function generateWorkLog() {
+  const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+  if (logs.length === 0) {
+    showBanner("No logs to generate.", "warning");
+    return;
+  }
+
+  // Prepare rows for Brand | Task
+  const data = logs.map(l => ({ Brand: l.brand, Task: l.task }));
+
+  // Generate Excel file using Blob
+  const csvContent =
+    "Brand,Task\n" +
+    data.map(d => `${d.Brand.replace(/,/g, " ")},${d.Task.replace(/,/g, " ")}`).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+
+  // File name includes date range
+  const now = new Date();
+  const fileName = `WorkLog_${now.toISOString().split("T")[0]}.csv`;
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  // Clear logs afterward
+  localStorage.removeItem("taskLogs");
+  showBanner("Work log generated and cleared from storage.", "success");
+}
+
+// Attach to button
+document.getElementById("generateLogBtn")?.addEventListener("click", generateWorkLog);
+
 
 function updateLastUpdated(){
     const now=new Date();
