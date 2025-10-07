@@ -992,6 +992,7 @@ function showLogs() {
           <th>Brand</th>
           <th>Task</th>
           <th>Status</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -1008,6 +1009,7 @@ function showLogs() {
         <td>${log.date || "N/A"}</td>
         <td>${log.brand || "N/A"}</td>
         <td>${log.task || "N/A"}</td>
+        <td>${log.status || "N/A"}</td>
         <td>
           <div class="d-flex flex-wrap gap-2 align-items-center">
             <button type="button" class="btn btn-sm btn-success" onclick="updateLogStatus(${index}, 'Completed')">Completed</button>
