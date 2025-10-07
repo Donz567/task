@@ -270,10 +270,8 @@ body {
 </head>
 <body>
   <!-- Loading Spinner -->
-<div id="loadingOverlay" class="loading-overlay d-none">
-  <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
-    <span class="visually-hidden">Loading...</span>
-  </div>
+
+<div id="banner" class="alert alert-success text-center position-fixed top-0 start-50 translate-middle-x w-50 d-none" role="alert" style="z-index:1055;">
 </div>
 <nav class="navbar navbar-expand-lg sticky-top p-3">
   <div class="container-fluid">
@@ -281,9 +279,7 @@ body {
     <a class="navbar-brand fw-bold" href="#">📋 Task Manager</a>
     
     <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
-    <button id="generateLogBtn" class="btn btn-outline-success btn-sm">
-    <i class="bi bi-file-earmark-excel"></i> Generate Daily Report
-    </button>
+    
     <button id="viewLogsBtn" class="btn btn-outline-info position-fixed bottom-0 end-0 m-3 shadow">
       <i class="bi bi-journal-text"></i> View Logs
     </button>
@@ -303,23 +299,29 @@ body {
 
 <!-- Logs Modal -->
 <div class="modal fade" id="logsModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content rounded-4">
       <div class="modal-header bg-primary text-white rounded-top-4">
         <h5 class="modal-title"><i class="bi bi-journal-text me-2"></i>Daily Work Logs</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+
       <div class="modal-body p-4">
         <div id="logsTableContainer" class="table-responsive">
           <p class="text-center text-muted mb-0">No logs recorded yet.</p>
         </div>
       </div>
-      <div class="modal-footer">
+
+      <div class="modal-footer d-flex justify-content-between">
+        <button class="btn btn-outline-success" id="generateLogBtn">
+          <i class="bi bi-file-earmark-excel"></i> Generate Daily Report
+        </button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
+
 
 
   <div id="filterBar">
@@ -473,8 +475,7 @@ function formatDate(date) {
     return `${y}-${m}-${d}`;
 }
 async function fetchTasks() {
-  showLoading();
-  try{
+ 
     try {
         const res = await fetch(SHEET_URL);
         const text = await res.text();
@@ -522,9 +523,7 @@ console.log("Parsed Date:", obj._dateParsed);
         updateStatusSummary();
         updateSBSSummary();
     } catch(err) { console.error("Error fetching tasks:", err); }
-  }finally{
-    hideLoading();
-  }
+  
 }
 
 function setupLogin() {
@@ -974,43 +973,122 @@ if (toggle.checked) {
 
 document.getElementById("viewLogsBtn")?.addEventListener("click", showLogs);
 
+// Function to show logs in modal with status controls
+// ✅ Replace all of your old showLogs() + updateLogStatus() with this
 function showLogs() {
+  const logsTableContainer = document.getElementById("logsTableContainer");
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
-  const container = document.getElementById("logsTableContainer");
 
-  if (logs.length === 0) {
-    container.innerHTML = `<p class="text-center text-muted mb-0">No logs recorded yet.</p>`;
-  } else {
-    const table = `
-      <table class="table table-hover align-middle">
-        <thead class="table-primary">
-          <tr>
-            <th>Date</th>
-            <th>Brand</th>
-            <th>Task</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${logs
-            .map(
-              (l) => `
-            <tr>
-              <td>${l.date}</td>
-              <td>${l.brand}</td>
-              <td>${l.task}</td>
-            </tr>`
-            )
-            .join("")}
-        </tbody>
-      </table>
-    `;
-    container.innerHTML = table;
+  if (!Array.isArray(logs) || logs.length === 0) {
+    logsTableContainer.innerHTML = `<p class="text-center text-muted mb-0">No logs recorded yet.</p>`;
+    return;
   }
 
-  const modal = new bootstrap.Modal(document.getElementById("logsModal"));
-  modal.show();
+  let html = `
+    <table class="table table-striped align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Brand</th>
+          <th>Task</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  logs.forEach((log, index) => {
+    const currentStatus = log.status || "";
+    const isCustom =
+      currentStatus &&
+      !["Completed", "Ongoing"].includes(currentStatus);
+
+    html += `
+      <tr>
+        <td>${log.date || "N/A"}</td>
+        <td>${log.brand || "N/A"}</td>
+        <td>${log.task || "N/A"}</td>
+        <td>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <button type="button" class="btn btn-sm btn-success" onclick="updateLogStatus(${index}, 'Completed')">Completed</button>
+            <button type="button" class="btn btn-sm btn-warning" onclick="updateLogStatus(${index}, 'Ongoing')">Ongoing</button>
+            <div class="d-flex align-items-center flex-grow-1">
+              <input 
+                type="text" 
+                class="form-control form-control-sm me-2" 
+                id="customInput-${index}" 
+                placeholder="Custom status..."
+                value="${isCustom ? currentStatus : ''}"
+                oninput="toggleSubmitButton(${index})"
+              >
+              <button 
+                id="submitBtn-${index}" 
+                class="btn btn-sm btn-primary" 
+                style="display:${isCustom ? 'inline-block' : 'none'}"
+                onclick="submitCustomStatus(${index})"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += "</tbody></table>";
+  logsTableContainer.innerHTML = html;
 }
 
+// ✅ Show/Hide Submit button dynamically
+function toggleSubmitButton(index) {
+  const input = document.getElementById(`customInput-${index}`);
+  const btn = document.getElementById(`submitBtn-${index}`);
+  btn.style.display = input.value.trim() ? "inline-block" : "none";
+}
+
+// ✅ Save a custom typed status
+function submitCustomStatus(index) {
+  const input = document.getElementById(`customInput-${index}`);
+  const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+
+  if (!logs[index]) return;
+  logs[index].status = input.value.trim();
+  localStorage.setItem("taskLogs", JSON.stringify(logs));
+
+  showBanner("Custom status saved!", "success");
+  showLogs();
+}
+
+// ✅ For buttons (Completed / Ongoing)
+function updateLogStatus(index, newStatus) {
+  const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+  if (!logs[index]) return;
+
+  logs[index].status = newStatus;
+  localStorage.setItem("taskLogs", JSON.stringify(logs));
+
+  showBanner(`Marked as ${newStatus}!`, newStatus === "Completed" ? "success" : "warning");
+  showLogs();
+}
+
+// ✅ Simple feedback banner
+function showBanner(message, type = "info") {
+  const banner = document.createElement("div");
+  banner.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x shadow`;
+  banner.style.zIndex = 3000;
+  banner.style.marginTop = "10px";
+  banner.innerText = message;
+  document.body.appendChild(banner);
+  setTimeout(() => banner.remove(), 3000);
+}
+
+// ✅ Event to show modal and load logs
+document.getElementById("viewLogsBtn").addEventListener("click", () => {
+  showLogs();
+  const modal = new bootstrap.Modal(document.getElementById("logsModal"));
+  modal.show();
+});
 
 function statusClass(status){
     if(status==="completed") return "status-completed";
@@ -1042,6 +1120,12 @@ function renderPagination(totalPages){
     });
 }
 
+function showBanner(message) {
+  const banner = document.getElementById("banner");
+  banner.textContent = message;
+  banner.classList.remove("d-none");
+  setTimeout(() => banner.classList.add("d-none"), 3000);
+}
 // === Generate and Download Excel Log ===
 function generateWorkLog() {
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
@@ -1051,12 +1135,12 @@ function generateWorkLog() {
   }
 
   // Prepare rows for Brand | Task
-  const data = logs.map(l => ({ Brand: l.brand, Task: l.task }));
+  const data = logs.map(l => ({ Brand: l.brand, Task: l.task, Status: l.status }));
 
   // Generate Excel file using Blob
   const csvContent =
-    "Brand,Task\n" +
-    data.map(d => `${d.Brand.replace(/,/g, " ")},${d.Task.replace(/,/g, " ")}`).join("\n");
+    "Brand,Task,Status\n" +
+    data.map(d => `${d.Brand.replace(/,/g, " ")},${d.Task.replace(/,/g, " ")},${d.Status.replace(/,/g, " ")}`).join("\n");
 
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -1065,7 +1149,7 @@ function generateWorkLog() {
 
   // File name includes date range
   const now = new Date();
-  const fileName = `WorkLog_${now.toISOString().split("T")[0]}.csv`;
+  const fileName = `DailyReport_${now.toISOString().split("T")[0]}.csv`;
   link.setAttribute("download", fileName);
   document.body.appendChild(link);
   link.click();
