@@ -931,32 +931,38 @@ function checkLogToggle() {
 
   const now = new Date();
   const hour = now.getHours();
-  const workDate = new Date();
-  if (hour < 8) workDate.setDate(workDate.getDate() - 1);
-  const dateStr = workDate.toISOString().split("T")[0];
 
+  // ✅ Adjust work date properly (1AM still belongs to previous "workday" only if your shift started before midnight)
+  const workDate = new Date();
+  const shiftStart = 20; // 8PM
+  const shiftEnd = 7;    // 7AM
+
+  if (hour < shiftEnd) {
+    workDate.setDate(workDate.getDate() - 1);
+  }
+
+  const dateStr = workDate.toISOString().split("T")[0];
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
   const already = logs.some(l => l.date === dateStr && l.task === taskTitle && l.brand === brand);
 
-  // Only enable toggle within shift (8PM–5AM)
-  if (hour >= 20 || hour < 8) {
+  if (hour >= shiftStart || hour < shiftEnd) {
     toggle.checked = already;
-    const label = document.querySelector('.fw-bold.text-secondary');
-if (toggle.checked) {
-  label.style.color = '#0d6efd';
-  label.style.textShadow = '0 0 8px rgba(13,110,253,0.6)';
-} else {
-  label.style.color = '#6c757d';
-  label.style.textShadow = 'none';
-}
-
     toggle.disabled = false;
+
+    const label = document.querySelector('.fw-bold.text-secondary');
+    if (toggle.checked) {
+      label.style.color = '#0d6efd';
+      label.style.textShadow = '0 0 8px rgba(13,110,253,0.6)';
+    } else {
+      label.style.color = '#6c757d';
+      label.style.textShadow = 'none';
+    }
   } else {
     toggle.checked = false;
     toggle.disabled = true;
   }
-  
 }
+
 
 // Clean up logs for days older than yesterday after 8AM
 (function cleanOldLogs() {
