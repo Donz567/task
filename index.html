@@ -102,6 +102,7 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     padding: 20px;
     margin-top: 20px;
+    scroll-padding-top: 80px;
 }
 .task-item .copyBtn {
   opacity: 0;
@@ -239,6 +240,11 @@ body {
   border-radius: 50%;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
+#detailTitle {
+  cursor: pointer;
+  position: relative;
+}
+
 
 /* ON State */
 .toggle-switch input:checked + .slider {
@@ -264,6 +270,16 @@ body {
   justify-content: center;
   align-items: center;
   transition: opacity 0.3s ease;
+}
+
+/* Sticky back + toggle bar */
+.detail-header {
+  position: sticky;
+  top: 70px; /* Adjust based on navbar height */
+  z-index: 1020;
+  background: #fff;
+  padding: 10px 0;
+  
 }
 
 </style>
@@ -811,7 +827,7 @@ function showDetail(task) {
 
     // Inject detail HTML including top info line with compact badges
     detailEl.innerHTML = `
-    <div class="d-flex align-items-center mb-3 gap-3">
+    <div class="detail-header d-flex align-items-center mb-3 gap-3">
         <button class="btn btn-sm btn-outline-secondary mb-2" id="backBtn">
             <i class="bi bi-arrow-left"></i> Back to Tasks
         </button>
@@ -833,6 +849,28 @@ function showDetail(task) {
         <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" placeholder="Search inside tasks...">
         <div id="templateList">${rendered}</div>
     `;
+// Make the title clickable to copy
+const titleEl = detailEl.querySelector("#detailTitle");
+titleEl.addEventListener("click", () => {
+  const text = titleEl.textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    // Remove any existing indicator
+    const old = titleEl.querySelector(".copied-indicator");
+    if (old) old.remove();
+
+    // Add ✅ Copied indicator next to the title
+    const indicator = document.createElement("span");
+    indicator.className = "copied-indicator";
+    indicator.textContent = "✅ Copied!";
+    indicator.style.marginLeft = "8px";
+    indicator.style.fontSize = "0.8em";
+    indicator.style.color = "#28a745";
+    titleEl.appendChild(indicator);
+
+    // Remove after 1 second
+    setTimeout(() => indicator.remove(), 1000);
+  });
+});
 
     // Copy button functionality
     detailEl.querySelectorAll(".task-item").forEach(item => {
@@ -931,38 +969,32 @@ function checkLogToggle() {
 
   const now = new Date();
   const hour = now.getHours();
-
-  // ✅ Adjust work date properly (1AM still belongs to previous "workday" only if your shift started before midnight)
   const workDate = new Date();
-  const shiftStart = 20; // 8PM
-  const shiftEnd = 7;    // 7AM
-
-  if (hour < shiftEnd) {
-    workDate.setDate(workDate.getDate() - 1);
-  }
-
+  if (hour < 8) workDate.setDate(workDate.getDate() - 1);
   const dateStr = workDate.toISOString().split("T")[0];
+
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
   const already = logs.some(l => l.date === dateStr && l.task === taskTitle && l.brand === brand);
 
-  if (hour >= shiftStart || hour < shiftEnd) {
+  // Only enable toggle within shift (8PM–5AM)
+  if (hour >= 20 || hour < 8) {
     toggle.checked = already;
-    toggle.disabled = false;
-
     const label = document.querySelector('.fw-bold.text-secondary');
-    if (toggle.checked) {
-      label.style.color = '#0d6efd';
-      label.style.textShadow = '0 0 8px rgba(13,110,253,0.6)';
-    } else {
-      label.style.color = '#6c757d';
-      label.style.textShadow = 'none';
-    }
+if (toggle.checked) {
+  label.style.color = '#0d6efd';
+  label.style.textShadow = '0 0 8px rgba(13,110,253,0.6)';
+} else {
+  label.style.color = '#6c757d';
+  label.style.textShadow = 'none';
+}
+
+    toggle.disabled = false;
   } else {
     toggle.checked = false;
     toggle.disabled = true;
   }
+  
 }
-
 
 // Clean up logs for days older than yesterday after 8AM
 (function cleanOldLogs() {
