@@ -933,6 +933,8 @@ titleEl.addEventListener("click", () => {
 function toggleLog(toggleEl) {
   const taskTitle = document.getElementById("detailTitle")?.textContent?.trim() || "Unknown Task";
   const brand = document.getElementById("detailBrand")?.textContent?.trim() || "Unknown Brand";
+  const subTask = document.querySelector(".label-subtask-text")?.textContent?.trim() || "N/A";
+
 
   const now = new Date();
   const hour = now.getHours();
@@ -952,6 +954,7 @@ function toggleLog(toggleEl) {
         date: dateStr,
         task: taskTitle,
         brand: brand,
+        subtask: subTask,
         timestamp: now.toISOString(),
       });
       localStorage.setItem("taskLogs", JSON.stringify(logs));
@@ -1036,6 +1039,7 @@ function showLogs() {
         <tr>
           <th>Date</th>
           <th>Brand</th>
+          <th>Sub-Task</th>
           <th>Task</th>
           <th>Status</th>
           <th>Action</th>
@@ -1054,6 +1058,7 @@ function showLogs() {
       <tr>
         <td>${log.date || "N/A"}</td>
         <td>${log.brand || "N/A"}</td>
+        <td>${log.subtask || "N/A"}</td>
         <td>${log.task || "N/A"}</td>
         <td>${log.status || "N/A"}</td>
         <td>
@@ -1183,12 +1188,12 @@ function generateWorkLog() {
   }
 
   // Prepare rows for Brand | Task
-  const data = logs.map(l => ({ Brand: l.brand, Task: l.task, Status: l.status }));
+  const data = logs.map(l => ({ Brand: l.brand, SubTask: l.subtask, Task: l.task, Status: l.status }));
 
   // Generate Excel file using Blob
   const csvContent =
-    "Brand,Task,Status\n" +
-    data.map(d => `${d.Brand.replace(/,/g, " ")},${d.Task.replace(/,/g, " ")},${d.Status.replace(/,/g, " ")}`).join("\n");
+    "Brand,Sub-Task,Task,Status\n" +
+    data.map(d => `${d.Brand.replace(/,/g, " ")},${d.SubTask.replace(/,/g, " ")},${d.Task.replace(/,/g, " ")},${d.Status.replace(/,/g, " ")}`).join("\n");
 
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
