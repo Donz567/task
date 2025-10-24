@@ -673,12 +673,12 @@ function updateFavicon(count) {
   if (count > 0) {
     ctx.fillStyle = "red";
     ctx.beginPath();
-    ctx.arc(54, 10, 10, 0, 2 * Math.PI);
+    ctx.arc(50, 12, 15, 0, 2 * Math.PI);
     ctx.fill();
 
     // Badge number
     ctx.fillStyle = "white";
-    ctx.font = "bold 12px Arial";
+    ctx.font = "bold 16px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(count > 99 ? "99+" : count, 54, 10);
