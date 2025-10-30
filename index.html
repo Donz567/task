@@ -842,16 +842,29 @@ function showDetail(task) {
 
     // Inject detail HTML including top info line with compact badges
     detailEl.innerHTML = `
-    <div class="detail-header d-flex align-items-center mb-3 gap-3">
-        <button class="btn btn-sm btn-outline-secondary mb-2" id="backBtn">
-            <i class="bi bi-arrow-left"></i> Back to Tasks
-        </button>
-         <label class="toggle-switch">
-            <input type="checkbox" id="logToggle" onchange="toggleLog(this)">
-            <span class="slider"></span>
-        </label>
-  <span class="fw-bold text-secondary">Working?</span>
+    <div class="detail-header d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-sm btn-outline-secondary" id="backBtn">
+        <i class="bi bi-arrow-left"></i> Back to Tasks
+      </button>
+      <label class="toggle-switch">
+        <input type="checkbox" id="logToggle" onchange="toggleLog(this)">
+        <span class="slider"></span>
+      </label>
+      <span class="fw-bold text-secondary">Working?</span>
     </div>
+
+    ${
+      normalizeBrandName(task["Brand"]).toLowerCase() === "vertx"
+        ? `<div class="d-flex align-items-center gap-2">
+             <span class="fw-bold text-secondary">Tool:</span>
+             <a href="https://donz567.github.io/whiteeditor/" target="_blank" 
+                class="btn btn-outline-dark rounded-pill px-2 py-1">Image Editor</a>
+           </div>`
+        : ""
+    }
+  </div>
+    
         <h5 class="mb-2" id="detailTitle">${cardTitle}</h5>
         <div class="mb-3 d-flex flex-wrap gap-1 align-items-center" style="font-size: 0.8rem;">
             <span class="badge bg-primary" id="detailBrand">${brand}</span>
