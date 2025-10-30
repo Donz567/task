@@ -401,7 +401,13 @@ async function initApp() {
     requestNotificationPermission();
   setTimeout(notifyDailyOngoingTasks, 2000); // show reminder shortly after load
 }
-
+function normalizeBrandName(brand) {
+  if (!brand) return brand;
+  // Convert to consistent case for comparison
+  const b = brand.trim().toLowerCase();
+  if (b === "carolina/double h boots") return "Carolina/Double H";
+  return brand;
+}
 function requestNotificationPermission() {
   if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
@@ -502,6 +508,7 @@ async function fetchTasks() {
         json.table.cols.forEach((col, j) => { 
             obj[col.label] = row.c[j] ? row.c[j].v : ""; 
         });
+        obj["Brand"] = normalizeBrandName(obj["Brand"]);
         obj["_id"] = i;
          console.log("Raw Date Assigned:", obj["Date Assigned"]);
         obj._dateParsed = parseSheetDate(obj["Date Assigned"]);
@@ -703,7 +710,7 @@ function renderTasks(taskArray){
     paginated.forEach(t => {
         const status = (t["Status"]||"").toLowerCase();
         const bcLink = t["BC Link"] || "#";
-        const brand = t["Brand"] || "N/A";
+        const brand = normalizeBrandName(t["Brand"]) || "N/A";
 
         const card = document.createElement("div");
         card.className = "task-card";
@@ -782,7 +789,7 @@ function showDetail(task) {
     detailEl.style.display = "block";
 
     const cardTitle = task["Tasks"] || "Untitled";
-    const brand = (task["Brand"] || "nobrand").toLowerCase();
+    const brand = normalizeBrandName(task["Brand"] || "nobrand").toLowerCase();
     const status = (task["Status"] || "N/A").toLowerCase();
     const dateAssigned = formatDate(task._dateParsed);
     const sbsNote = task["TM's Note"] || "";
@@ -1188,7 +1195,7 @@ function generateWorkLog() {
   }
 
   // Prepare rows for Brand | Task
-  const data = logs.map(l => ({ Brand: l.brand, SubTask: l.subtask, Task: l.task, Status: l.status }));
+  const data = logs.map(l => ({ Brand: normalizeBrandName(l.brand), SubTask: l.subtask, Task: l.task, Status: l.status }));
 
   // Generate Excel file using Blob
   const csvContent =
