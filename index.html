@@ -794,6 +794,8 @@ function showDetail(task) {
     const dateAssigned = formatDate(task._dateParsed);
     const sbsNote = task["TM's Note"] || "";
     const bcLink = task["BC Link"] || "#";
+    const subTask = document.querySelector(".label-subtask-text")?.textContent?.trim() || "N/A";
+
 
     // Map status to badge class
     function statusClass(s) {
@@ -868,6 +870,7 @@ function showDetail(task) {
         <h5 class="mb-2" id="detailTitle">${cardTitle}</h5>
         <div class="mb-3 d-flex flex-wrap gap-1 align-items-center" style="font-size: 0.8rem;">
             <span class="badge bg-primary" id="detailBrand">${brand}</span>
+            <span class="badge bg-success label-subtask-text">${task["Sub-Task"] || "N/A"}</span>
             <span class="badge ${statusClass(status)}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
             ${sbsNote ? `<span class="badge bg-warning text-dark">${sbsNote}</span>` : ""}
             <span class="text-muted">📅 ${dateAssigned}</span>
@@ -953,7 +956,9 @@ titleEl.addEventListener("click", () => {
 function toggleLog(toggleEl) {
   const taskTitle = document.getElementById("detailTitle")?.textContent?.trim() || "Unknown Task";
   const brand = document.getElementById("detailBrand")?.textContent?.trim() || "Unknown Brand";
-  const subTask = document.querySelector(".label-subtask-text")?.textContent?.trim() || "N/A";
+  const subTask = document
+  .querySelector("#taskDetail .label-subtask-text")
+  ?.textContent?.trim() || "N/A";
 
 
   const now = new Date();
