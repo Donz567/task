@@ -670,25 +670,30 @@ function updateFavicon(count) {
   canvas.height = 64;
   const ctx = canvas.getContext("2d");
 
-  // Draw star emoji as the base
-  ctx.font = "60px Segoe UI Emoji";
+  // 1. Draw star emoji (Shifted slightly left to make room for badge)
+  ctx.font = "54px Segoe UI Emoji";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("⭐", 32, 36);
+  ctx.fillText("⭐", 26, 38); 
 
-  // Draw red badge
+  // 2. Draw Red Badge (Much Bigger)
   if (count > 0) {
-    ctx.fillStyle = "red";
     ctx.beginPath();
-    ctx.arc(50, 12, 15, 0, 2 * Math.PI);
+    // Circle centered at top-right (x=46, y=18), Radius=22 (Big!)
+    ctx.arc(46, 18, 22, 0, 2 * Math.PI); 
+    ctx.fillStyle = "#ff0000"; // Bright Red
     ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#ffffff"; // White border to separate from star
+    ctx.stroke();
 
-    // Badge number
+    // 3. Draw Number (Big & Bold)
     ctx.fillStyle = "white";
-    ctx.font = "bold 16px Arial";
+    ctx.font = "bold 28px Arial"; // Increased font size significantly
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(count > 99 ? "99+" : count, 54, 10);
+    // Adjust text position slightly to center in the circle
+    ctx.fillText(count > 99 ? "99+" : count, 46, 19); 
   }
 
   // Apply favicon
@@ -789,15 +794,12 @@ function showDetail(task) {
     detailEl.style.display = "block";
 
     const cardTitle = task["Tasks"] || "Untitled";
-    const brand = normalizeBrandName(task["Brand"] || "nobrand").toLowerCase();
+    const brand = normalizeBrandName(task["Brand"] || "nobrand");
     const status = (task["Status"] || "N/A").toLowerCase();
     const dateAssigned = formatDate(task._dateParsed);
     const sbsNote = task["TM's Note"] || "";
     const bcLink = task["BC Link"] || "#";
-    const subTask = document.querySelector(".label-subtask-text")?.textContent?.trim() || "N/A";
-
-
-    // Map status to badge class
+    
     function statusClass(s) {
         if (s === "completed") return "status-completed";
         if (s === "ongoing") return "status-ongoing";
@@ -806,27 +808,31 @@ function showDetail(task) {
         return "badge bg-secondary";
     }
 
-    // Categories (replace with your full categories)
-    const categories = { "Validation": [ "[brand]-validating-data for new supplier", "[brand]-validating-upc list source" ], "Analysis": [ "[brand]-analyzing-task prioritization", "[brand]-analyzing-new supplier source", "[brand]-analyzing-existing supplier source", "[brand]-analyzing-bulk order source", "[brand]-analyzing-prebook order source", "[brand]-analyzing-inventory for deletion", "[brand]-analyzing-listing loader request", "[brand]-analyzing-shopify source", "analyzing-manage experiment", "[brand]-analyzing-shopkeep source" ], "Gathering Data": [ "[brand]-gathering-new supplier data", "[brand]-gathering-existing supplier data", "[brand]-gathering-bulk/preebook data", "[brand]-gathering-enhancement data", "[brand]-gathering-flat file data", "[brand]-gathering-pre existing asins", "[brand]-gathering-skus for deletion", "[brand]-gathering-brand store data", "[brand]-gathering-shopify data", "[brand]-gathering-shopkeep data", "[brand]-gathering-skus for deletion", "[brand]-gathering-SIPV", "[brand]-gathering-manage experiment", "all brands-gathering-voice of the customer", "all brands-gathering-suppressed listings", "all brands-gathering-stranded listings", "all brands-gathering-standalone listings" ], "Creation": [ "[brand]-creating-new supplier masterlist", "[brand]-creating-existing supplier masterlist", "[brand]-creating- bulk/prebook masterlist", "[brand]-creating-new supplier listing loader file", "[brand]-creating-existing supplier listing loader file", "[brand]-creating-bulk/prebook listing loader file", "[brand]-creating-new supplier ilf", "[brand]-creating-existing supplier ilf", "[brand]-creating-bulk/prebook ilf", "[brand]-creating-new supplier cost sheet", "[brand]-creating-new supplier sku upc list", "[brand]-creating-existing supplier cost sheet", "[brand]-creating-existing supplier sku upc list", "[brand]-creating-bulk/prebook cost sheet", "[brand]-creating-bulk/prebook sku upc list", "[brand]-creating-existing supplier advertising campaign list", "[brand]-creating-flat file enhancement", "[brand]-creating-flat file listing concern", "creating-manage experiment", "[brand]-creating-ebc enhancement" ], "Verification / Image Update": [ "[brand]-verifying-upc match manual", "[brand]-verifying-data central result", "[brand]-verifying-listing loader request", "[brand]-verifying-image urls", "[brand]-enhancing-images for enhancement", "[brand]-updating-sas flat file", "[brand]-updating-listing in amazon", "[brand]-updating-edit page manually enhancement" ], "Review / Upload": [ "[brand]-reviewing-all files", "[brand]-reviewing-newly uploaded listings", "[brand]-uploading-ilf", "[brand]-uploading-flat file", "[brand]-uploading-shipping plan", "[brand]-uploading-weights and dimensions", "[brand]-uploading-video", "[brand]-uploading-images", "[brand]-attaching-files in bc", "[brand]-reviewing-all files enhancement", "[brand]-attaching-files in bc enhancement", "[brand]-uploading-flat file enhancement", "[brand]-uploading-video enhancement" ], "Investigation / Fixing / Correction": [ "[brand]-investigating-listing issue", "[brand]-fixing-suppressed/quality alerts", "[brand]-fixing-stranded inventory", "[brand]-fixing-standalone", "[brand]-correcting-masterlist file", "[brand]-correcting-ilf", "[brand]-correcting-cost sheet", "[brand]-correcting-sku-upc list", "[brand]-correcting-flatfile error", "[brand]-investigating-pesticide marking", "[brand]-fixing-listing issue", "[brand]-investigating-listing enhancement", "[brand]-correcting-flatfile error enhancement", "[brand]-investigating-SIP", "[brand]-investigating-policy warning", "[brand]-investigating-inaccurate condition complaint" ], "Update / Send & Monitor Case": [ "[brand]-updating-trackers", "[brand]-updating-ebc", "[brand]-updating-search terms", "[brand]-sending-amazon case", "[brand]-sending-sas email", "[brand]-checking-amazon case & ff ups", "[brand]-checking-sas response", "[brand]-sending-sas ops", "[brand]-sending-amazon case enhancement", "[brand]-checking-amazon case & ff ups enhancement", "[brand]-updating-ebc enhancement", "[brand]-updating-search terms enhancement", "[brand]-sending-appeal" ], "Monitoring": [ "none-checking-skype concerns", "none-checking-email concerns", "none-checking-basecamp notifications", "none-prioritizing tasks", "none-addressing-concerns-via skype", "none-addressing-concerns-via email", "none-addressing-concerns-via basecamp", "[brand]-logging-in 2P account", "[brand]-logging-in 1P account" ], "Admin": [ "admin-break", "admin-training:[task]-{person}", "admin-feedbacking-[name of person/group]", "admin-assisting-[task] [name of person/group]", "admin-meeting-{name of person/group}", "admin-coaching-{name of person/group}", "sbs-certifying-[task name]-[name of agent]", "admin-observing:[task]-[name of person]", "admin-meeting-team-listing ex", "admin-1on1-[name]", "[brand]-creating-flat file", "[brand]-updating-listing in amazon (manual)", "[brand]-creating-listing in amazon (manual)", "[brand]-creating-deletion file", "[brand]-gathering-images for EBC", "[brand]-creating-ebc enhancement", "[brand]-updating-ebc enhancement", "[brand]-certify-" ] };
-    // Render templates
+    // --- CATEGORIES DATA ---
+    const categories = { 
+        "Validation": [ "[brand]-validating-data for new supplier", "[brand]-validating-upc list source" ], 
+        "Analysis": [ "[brand]-analyzing-task prioritization", "[brand]-analyzing-new supplier source", "[brand]-analyzing-existing supplier source", "[brand]-analyzing-bulk order source", "[brand]-analyzing-prebook order source", "[brand]-analyzing-inventory for deletion", "[brand]-analyzing-listing loader request", "[brand]-analyzing-shopify source", "analyzing-manage experiment", "[brand]-analyzing-shopkeep source" ], 
+        "Gathering Data": [ "[brand]-gathering-new supplier data", "[brand]-gathering-existing supplier data", "[brand]-gathering-bulk/preebook data", "[brand]-gathering-enhancement data", "[brand]-gathering-flat file data", "[brand]-gathering-pre existing asins", "[brand]-gathering-skus for deletion", "[brand]-gathering-brand store data", "[brand]-gathering-shopify data", "[brand]-gathering-shopkeep data", "[brand]-gathering-skus for deletion", "[brand]-gathering-SIPV", "[brand]-gathering-manage experiment", "all brands-gathering-voice of the customer", "all brands-gathering-suppressed listings", "all brands-gathering-stranded listings", "all brands-gathering-standalone listings" ], 
+        "Creation": [ "[brand]-creating-new supplier masterlist", "[brand]-creating-existing supplier masterlist", "[brand]-creating- bulk/prebook masterlist", "[brand]-creating-new supplier listing loader file", "[brand]-creating-existing supplier listing loader file", "[brand]-creating-bulk/prebook listing loader file", "[brand]-creating-new supplier ilf", "[brand]-creating-existing supplier ilf", "[brand]-creating-bulk/prebook ilf", "[brand]-creating-new supplier cost sheet", "[brand]-creating-new supplier sku upc list", "[brand]-creating-existing supplier cost sheet", "[brand]-creating-existing supplier sku upc list", "[brand]-creating-bulk/prebook cost sheet", "[brand]-creating-bulk/prebook sku upc list", "[brand]-creating-existing supplier advertising campaign list", "[brand]-creating-flat file enhancement", "[brand]-creating-flat file listing concern", "creating-manage experiment", "[brand]-creating-ebc enhancement" ], 
+        "Verification / Image Update": [ "[brand]-verifying-upc match manual", "[brand]-verifying-data central result", "[brand]-verifying-listing loader request", "[brand]-verifying-image urls", "[brand]-enhancing-images for enhancement", "[brand]-updating-sas flat file", "[brand]-updating-listing in amazon", "[brand]-updating-edit page manually enhancement" ], 
+        "Review / Upload": [ "[brand]-reviewing-all files", "[brand]-reviewing-newly uploaded listings", "[brand]-uploading-ilf", "[brand]-uploading-flat file", "[brand]-uploading-shipping plan", "[brand]-uploading-weights and dimensions", "[brand]-uploading-video", "[brand]-uploading-images", "[brand]-attaching-files in bc", "[brand]-reviewing-all files enhancement", "[brand]-attaching-files in bc enhancement", "[brand]-uploading-flat file enhancement", "[brand]-uploading-video enhancement" ], 
+        "Investigation / Fixing / Correction": [ "[brand]-investigating-listing issue", "[brand]-fixing-suppressed/quality alerts", "[brand]-fixing-stranded inventory", "[brand]-fixing-standalone", "[brand]-correcting-masterlist file", "[brand]-correcting-ilf", "[brand]-correcting-cost sheet", "[brand]-correcting-sku-upc list", "[brand]-correcting-flatfile error", "[brand]-investigating-pesticide marking", "[brand]-fixing-listing issue", "[brand]-investigating-listing enhancement", "[brand]-correcting-flatfile error enhancement", "[brand]-investigating-SIP", "[brand]-investigating-policy warning", "[brand]-investigating-inaccurate condition complaint" ], 
+        "Update / Send & Monitor Case": [ "[brand]-updating-trackers", "[brand]-updating-ebc", "[brand]-updating-search terms", "[brand]-sending-amazon case", "[brand]-sending-sas email", "[brand]-checking-amazon case & ff ups", "[brand]-checking-sas response", "[brand]-sending-sas ops", "[brand]-sending-amazon case enhancement", "[brand]-checking-amazon case & ff ups enhancement", "[brand]-updating-ebc enhancement", "[brand]-updating-search terms enhancement", "[brand]-sending-appeal" ], 
+        "Monitoring": [ "none-checking-skype concerns", "none-checking-email concerns", "none-checking-basecamp notifications", "none-prioritizing tasks", "none-addressing-concerns-via skype", "none-addressing-concerns-via email", "none-addressing-concerns-via basecamp", "[brand]-logging-in 2P account", "[brand]-logging-in 1P account" ], 
+        "Admin": [ "admin-break", "admin-training:[task]-{person}", "admin-feedbacking-[name of person/group]", "admin-assisting-[task] [name of person/group]", "admin-meeting-{name of person/group}", "admin-coaching-{name of person/group}", "sbs-certifying-[task name]-[name of agent]", "admin-observing:[task]-[name of person]", "admin-meeting-team-listing ex", "admin-1on1-[name]", "[brand]-creating-flat file", "[brand]-updating-listing in amazon (manual)", "[brand]-creating-listing in amazon (manual)", "[brand]-creating-deletion file", "[brand]-gathering-images for EBC", "[brand]-creating-ebc enhancement", "[brand]-updating-ebc enhancement", "[brand]-certify-" ] 
+    };
+
     let rendered = "";
     for (const [header, items] of Object.entries(categories)) {
         const processed = items.map(t => {
-    const lower = t.toLowerCase();
-
-    // Leave admin/none as-is
-    if (lower.startsWith("admin") || lower.startsWith("none")) {
-        return t;
-    }
-
-    // Replace [brand] and append card title
-    if (t.includes("[brand]")) {
-        return t.replace(/\[brand\]/g, brand) + ` (${cardTitle})`;
-    }
-
-    // Leave everything else as-is
-    return t;
-});
+            const lower = t.toLowerCase();
+            if (lower.startsWith("admin") || lower.startsWith("none")) return t;
+            if (t.includes("[brand]")) {
+                const displayBrand = brand.charAt(0).toUpperCase() + brand.slice(1);
+                return t.replace(/\[brand\]/g, displayBrand) + ` (${cardTitle})`;
+            }
+            return t;
+        });
 
         rendered += `
         <h6 class="mt-3 mb-2 fw-bold text-primary">${header}</h6>
@@ -842,116 +848,177 @@ function showDetail(task) {
         `;
     }
 
-    // Inject detail HTML including top info line with compact badges
+    // --- SEARCH BUBBLES LOGIC (LIMIT 7 + DEDUPLICATE) ---
+    // 1. Get recent searches
+    let recentSearches = JSON.parse(localStorage.getItem("recentSearches") || "[]");
+    
+    // 2. NEW: Clean Duplicates (Case Insensitive)
+    // This removes "Test" if "test" is already there
+    recentSearches = recentSearches.filter((item, index, self) =>
+        index === self.findIndex((t) => (
+            t.toLowerCase() === item.toLowerCase()
+        ))
+    );
+
+    // 3. Limit to Top 7
+    if (recentSearches.length > 7) {
+        recentSearches = recentSearches.slice(0, 7);
+        localStorage.setItem("recentSearches", JSON.stringify(recentSearches)); // Save cleaned list
+    }
+
+    // 4. Defaults if empty
+    if (recentSearches.length === 0) {
+        recentSearches = ["Validating", "Analyzing", "Gathering", "Creation", "Admin"];
+    }
+
+    // 5. Generate HTML
+    const bubblesHtml = recentSearches.map(term => 
+        `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill search-bubble mb-1" style="font-size: 0.75rem;">${term}</button>`
+    ).join(" ");
+
+
+    // --- INJECT HTML ---
     detailEl.innerHTML = `
     <div class="detail-header d-flex justify-content-between align-items-center mb-3">
-    <div class="d-flex align-items-center gap-3">
-      <button class="btn btn-sm btn-outline-secondary" id="backBtn">
-        <i class="bi bi-arrow-left"></i> Back to Tasks
-      </button>
-      <label class="toggle-switch">
-        <input type="checkbox" id="logToggle" onchange="toggleLog(this)">
-        <span class="slider"></span>
-      </label>
-      <span class="fw-bold text-secondary">Working?</span>
-    </div>
-
-    ${
-      normalizeBrandName(task["Brand"]).toLowerCase() === "vertx"
-        ? `<div class="d-flex align-items-center gap-2">
-             <span class="fw-bold text-secondary">Tool:</span>
-             <a href="https://donz567.github.io/whiteeditor/" target="_blank" 
-                class="btn btn-outline-dark rounded-pill px-2 py-1">Image Editor</a>
-           </div>`
-        : ""
-    }
-  </div>
-    
-        <h5 class="mb-2" id="detailTitle">${cardTitle}</h5>
-        <div class="mb-3 d-flex flex-wrap gap-1 align-items-center" style="font-size: 0.8rem;">
-            <span class="badge bg-primary" id="detailBrand">${brand}</span>
-            <span class="badge bg-success label-subtask-text">${task["Sub-Task"] || "N/A"}</span>
-            <span class="badge ${statusClass(status)}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
-            ${sbsNote ? `<span class="badge bg-warning text-dark">${sbsNote}</span>` : ""}
-            <span class="text-muted">📅 ${dateAssigned}</span>
-            ${bcLink !== "#" ? `<a href="${bcLink}" target="_blank" class="text-decoration-none">🔗 BC Link</a>` : ""}
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-sm btn-outline-secondary" id="backBtn">
+            <i class="bi bi-arrow-left"></i> Back to Tasks
+          </button>
+          <label class="toggle-switch">
+            <input type="checkbox" id="logToggle" onchange="toggleLog(this)">
+            <span class="slider"></span>
+          </label>
+          <span class="fw-bold text-secondary">Working?</span>
         </div>
 
-        <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" placeholder="Search inside tasks...">
-        <div id="templateList">${rendered}</div>
+        ${
+          normalizeBrandName(task["Brand"]).toLowerCase() === "vertx"
+            ? `<div class="d-flex align-items-center gap-2">
+                 <span class="fw-bold text-secondary">Tool:</span>
+                 <a href="https://donz567.github.io/whiteeditor/" target="_blank" 
+                    class="btn btn-outline-dark rounded-pill px-2 py-1">Image Editor</a>
+               </div>`
+            : ""
+        }
+    </div>
+    
+    <h5 class="mb-2" id="detailTitle">${cardTitle}</h5>
+    <div class="mb-3 d-flex flex-wrap gap-1 align-items-center" style="font-size: 0.8rem;">
+        <span class="badge bg-primary" id="detailBrand">${brand}</span>
+        <span class="badge bg-success label-subtask-text">${task["Sub-Task"] || "N/A"}</span>
+        <span class="badge ${statusClass(status)}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+        ${sbsNote ? `<span class="badge bg-warning text-dark">${sbsNote}</span>` : ""}
+        <span class="text-muted">📅 ${dateAssigned}</span>
+        ${bcLink !== "#" ? `<a href="${bcLink}" target="_blank" class="text-decoration-none">🔗 BC Link</a>` : ""}
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-2" id="bubbleContainer">
+        ${bubblesHtml}
+    </div>
+
+    <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" autocomplete="off" placeholder="Search inside tasks...">
+    
+    <div id="templateList">${rendered}</div>
     `;
-// Make the title clickable to copy
-const titleEl = detailEl.querySelector("#detailTitle");
-titleEl.addEventListener("click", () => {
-  const text = titleEl.textContent.trim();
-  navigator.clipboard.writeText(text).then(() => {
-    // Remove any existing indicator
-    const old = titleEl.querySelector(".copied-indicator");
-    if (old) old.remove();
 
-    // Add ✅ Copied indicator next to the title
-    const indicator = document.createElement("span");
-    indicator.className = "copied-indicator";
-    indicator.textContent = "✅ Copied!";
-    indicator.style.marginLeft = "8px";
-    indicator.style.fontSize = "0.8em";
-    indicator.style.color = "#28a745";
-    titleEl.appendChild(indicator);
+    // --- FUNCTIONALITY ---
 
-    // Remove after 1 second
-    setTimeout(() => indicator.remove(), 1000);
-  });
-});
-
-    // Copy button functionality
-    detailEl.querySelectorAll(".task-item").forEach(item => {
-    item.addEventListener("click", e => {
-        e.stopPropagation();
-        const text = item.querySelector("span").innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            // Remove any old indicator first
-            const old = item.querySelector(".copied-indicator");
-            if (old) old.remove();
-
-            // Add a copied indicator
-            const indicator = document.createElement("span");
-            indicator.className = "copied-indicator";
-            indicator.innerText = "✅ Copied!";
-            item.appendChild(indicator);
-
-            // Remove after 1s
-            setTimeout(() => indicator.remove(), 1000);
-        }).catch(err => console.error("Copy failed", err));
-    });
-});
-
-    // Template search filter
-    document.getElementById("templateSearch").addEventListener("input", e => {
-        const term = e.target.value.toLowerCase();
+    const searchInput = document.getElementById("templateSearch");
+    
+    function performSearch(term) {
+        const lowerTerm = term.toLowerCase();
         document.querySelectorAll("#templateList h6").forEach(header => {
             const section = header.nextElementSibling;
             let anyVisible = false;
-
             section.querySelectorAll(".col-md-6").forEach(div => {
-                const match = div.innerText.toLowerCase().includes(term);
+                const match = div.innerText.toLowerCase().includes(lowerTerm);
                 div.style.display = match ? "" : "none";
                 if (match) anyVisible = true;
             });
-
             header.style.display = anyVisible ? "" : "none";
             section.style.display = anyVisible ? "" : "none";
         });
+    }
+
+    // 1. SEARCH & SAVE
+    searchInput.addEventListener("input", (e) => {
+        performSearch(e.target.value);
     });
 
-    // Back button
+    searchInput.addEventListener("change", () => {
+        const val = searchInput.value.trim();
+        if (val.length > 2) { 
+            let history = JSON.parse(localStorage.getItem("recentSearches") || "[]");
+            
+            // Remove existing version of this word (deduplicate before adding)
+            history = history.filter(h => h.toLowerCase() !== val.toLowerCase());
+            
+            // Add to top
+            history.unshift(val);
+            
+            // Clean Duplicates again just to be safe (Case Insensitive)
+            history = history.filter((item, index, self) =>
+                index === self.findIndex((t) => (
+                    t.toLowerCase() === item.toLowerCase()
+                ))
+            );
+
+            // Limit to Top 7
+            if (history.length > 7) history = history.slice(0, 7);
+            
+            localStorage.setItem("recentSearches", JSON.stringify(history));
+        }
+    });
+
+    // 2. Bubble Click
+    detailEl.querySelectorAll(".search-bubble").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const val = btn.textContent;
+            searchInput.value = val;
+            performSearch(val);
+        });
+    });
+
+    // 3. Copy
+    const titleEl = detailEl.querySelector("#detailTitle");
+    titleEl.addEventListener("click", () => {
+        navigator.clipboard.writeText(titleEl.textContent.trim()).then(() => {
+            showCopied(titleEl);
+        });
+    });
+
+    detailEl.querySelectorAll(".task-item").forEach(item => {
+        item.addEventListener("click", e => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(item.querySelector("span").innerText).then(() => {
+                showCopied(item);
+            });
+        });
+    });
+
+    function showCopied(element) {
+        const old = element.querySelector(".copied-indicator");
+        if (old) old.remove();
+        const indicator = document.createElement("span");
+        indicator.className = "copied-indicator";
+        indicator.innerText = "✅ Copied!";
+        indicator.style.marginLeft = "8px"; 
+        indicator.style.color = "#28a745";
+        element.appendChild(indicator);
+        setTimeout(() => indicator.remove(), 1000);
+    }
+
+    // 4. Back Button
     document.getElementById("backBtn").addEventListener("click", () => {
         taskListEl.style.display = "grid";
         paginationEl.style.display = "flex";
         filterBarEl.style.display = "flex";
         detailEl.style.display = "none";
     });
+
     checkLogToggle();
 }
+
 
 function toggleLog(toggleEl) {
   const taskTitle = document.getElementById("detailTitle")?.textContent?.trim() || "Unknown Task";
@@ -996,6 +1063,7 @@ function toggleLog(toggleEl) {
 }
 
 // When showing details of a task, make toggle reflect that task’s current status
+// When showing details of a task, make toggle reflect that task’s current status
 function checkLogToggle() {
   const toggle = document.getElementById("logToggle");
   if (!toggle) return;
@@ -1006,40 +1074,49 @@ function checkLogToggle() {
   const now = new Date();
   const hour = now.getHours();
   const workDate = new Date();
+  
+  // Logic to determine "Shift Date" (If it's 1AM, it belongs to previous day's shift)
   if (hour < 8) workDate.setDate(workDate.getDate() - 1);
   const dateStr = workDate.toISOString().split("T")[0];
 
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
   const already = logs.some(l => l.date === dateStr && l.task === taskTitle && l.brand === brand);
 
-  // Only enable toggle within shift (8PM–5AM)
-  if (hour >= 20 || hour < 8) {
+  // --- UPDATED LOGIC HERE ---
+  // Allow Start: 17 (5 PM)
+  // Allow End: 12 (12 Noon next day)
+  // This covers 5 PM, 6 PM, 7 PM, Midnight, and morning hours.
+  if (hour >= 17 || hour < 12) {
     toggle.checked = already;
     const label = document.querySelector('.fw-bold.text-secondary');
-if (toggle.checked) {
-  label.style.color = '#0d6efd';
-  label.style.textShadow = '0 0 8px rgba(13,110,253,0.6)';
-} else {
-  label.style.color = '#6c757d';
-  label.style.textShadow = 'none';
-}
+    
+    if (toggle.checked) {
+      label.style.color = '#0d6efd';
+      label.style.textShadow = '0 0 8px rgba(13,110,253,0.6)';
+    } else {
+      label.style.color = '#6c757d';
+      label.style.textShadow = 'none';
+    }
 
     toggle.disabled = false;
   } else {
+    // Outside of work hours (12 PM to 5 PM), disable it
     toggle.checked = false;
     toggle.disabled = true;
   }
-  
 }
 
 // Clean up logs for days older than yesterday after 8AM
+// Clean up logs for days older than yesterday after 1 PM (13:00)
 (function cleanOldLogs() {
   const now = new Date();
   const hour = now.getHours();
-  if (hour >= 8) {
+  // Changed from 8 to 13 (1 PM) to allow late morning work
+  if (hour >= 13) {
     let logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
     const today = new Date();
     const todayStr = today.toISOString().split("T")[0];
+    // Keep only today's logs
     logs = logs.filter(l => l.date === todayStr);
     localStorage.setItem("taskLogs", JSON.stringify(logs));
   }
