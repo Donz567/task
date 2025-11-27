@@ -794,7 +794,6 @@ function showDetail(task) {
     detailEl.style.display = "block";
 
     const cardTitle = task["Tasks"] || "Untitled";
-    // --- CHANGE: Force brand to lowercase for the View ---
     const brand = normalizeBrandName(task["Brand"] || "nobrand").toLowerCase();
     
     const status = (task["Status"] || "N/A").toLowerCase();
@@ -830,7 +829,6 @@ function showDetail(task) {
             const lower = t.toLowerCase();
             if (lower.startsWith("admin") || lower.startsWith("none")) return t;
             if (t.includes("[brand]")) {
-                // --- CHANGE: Use lowercase 'brand' variable without capitalization ---
                 return t.replace(/\[brand\]/g, brand) + ` (${cardTitle})`;
             }
             return t;
@@ -849,29 +847,6 @@ function showDetail(task) {
         </div>
         `;
     }
-
-    // --- SEARCH BUBBLES LOGIC (LIMIT 7 + DEDUPLICATE) ---
-    let recentSearches = JSON.parse(localStorage.getItem("recentSearches") || "[]");
-    
-    // Clean Duplicates
-    recentSearches = recentSearches.filter((item, index, self) =>
-        index === self.findIndex((t) => (t.toLowerCase() === item.toLowerCase()))
-    );
-
-    // Limit to Top 7
-    if (recentSearches.length > 7) {
-        recentSearches = recentSearches.slice(0, 7);
-        localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
-    }
-
-    if (recentSearches.length === 0) {
-        recentSearches = ["Validating", "Analyzing", "Gathering", "Creation", "Admin"];
-    }
-
-    const bubblesHtml = recentSearches.map(term => 
-        `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill search-bubble mb-1" style="font-size: 0.75rem;">${term}</button>`
-    ).join(" ");
-
 
     // --- INJECT HTML ---
     detailEl.innerHTML = `
@@ -908,18 +883,53 @@ function showDetail(task) {
         ${bcLink !== "#" ? `<a href="${bcLink}" target="_blank" class="text-decoration-none">🔗 BC Link</a>` : ""}
     </div>
 
-    <div class="d-flex flex-wrap gap-2 mb-2" id="bubbleContainer">
-        ${bubblesHtml}
-    </div>
+    <div class="d-flex flex-wrap gap-2 mb-2" id="bubbleContainer"></div>
 
-    <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" autocomplete="off" placeholder="Search inside tasks...">
+    <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" autocomplete="off" placeholder="Type to search... (Auto-saves after 2 seconds)">
     
     <div id="templateList">${rendered}</div>
     `;
 
-    // --- LISTENERS ---
+    // --- LOGIC SETUP ---
     const searchInput = document.getElementById("templateSearch");
+    let debounceTimer; // ⏳ Timer variable
     
+    // --- FUNCTION TO REFRESH BUBBLES IMMEDIATELY ---
+    function refreshBubbles() {
+        let recentSearches = JSON.parse(localStorage.getItem("recentSearches") || "[]");
+        
+        // Clean Duplicates
+        recentSearches = recentSearches.filter((item, index, self) =>
+            index === self.findIndex((t) => (t.toLowerCase() === item.toLowerCase()))
+        );
+
+        // Limit to 15
+        if (recentSearches.length > 15) {
+            recentSearches = recentSearches.slice(0, 15);
+            localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
+        }
+
+        if (recentSearches.length === 0) {
+            recentSearches = ["Validating", "Analyzing", "Gathering", "Creation", "Admin"];
+        }
+
+        const bubblesHtml = recentSearches.map(term => 
+            `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill search-bubble mb-1" style="font-size: 0.75rem;">${term}</button>`
+        ).join(" ");
+
+        const container = document.getElementById("bubbleContainer");
+        container.innerHTML = bubblesHtml;
+
+        // Re-attach listeners to new bubbles
+        container.querySelectorAll(".search-bubble").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const val = btn.textContent;
+                searchInput.value = val;
+                performSearch(val);
+            });
+        });
+    }
+
     function performSearch(term) {
         const lowerTerm = term.toLowerCase();
         document.querySelectorAll("#templateList h6").forEach(header => {
@@ -935,27 +945,37 @@ function showDetail(task) {
         });
     }
 
-    searchInput.addEventListener("input", (e) => performSearch(e.target.value));
+    // 🔥 MODIFIED LISTENER: Search Instantly + Save after 2 Seconds
+    searchInput.addEventListener("input", (e) => {
+        const val = e.target.value;
+        
+        // 1. Filter the list immediately
+        performSearch(val);
 
-    searchInput.addEventListener("change", () => {
-        const val = searchInput.value.trim();
-        if (val.length > 2) { 
-            let history = JSON.parse(localStorage.getItem("recentSearches") || "[]");
-            history = history.filter(h => h.toLowerCase() !== val.toLowerCase());
-            history.unshift(val);
-            history = history.filter((item, index, self) => index === self.findIndex((t) => (t.toLowerCase() === item.toLowerCase())));
-            if (history.length > 7) history = history.slice(0, 7);
-            localStorage.setItem("recentSearches", JSON.stringify(history));
-        }
+        // 2. Clear the previous timer (reset the countdown)
+        clearTimeout(debounceTimer);
+
+        // 3. Start a new 2-second countdown
+        debounceTimer = setTimeout(() => {
+            const trimmedVal = val.trim();
+            if (trimmedVal.length > 2) {
+                // Save logic
+                let history = JSON.parse(localStorage.getItem("recentSearches") || "[]");
+                history = history.filter(h => h.toLowerCase() !== trimmedVal.toLowerCase());
+                history.unshift(trimmedVal);
+                
+                if (history.length > 15) history = history.slice(0, 15);
+                
+                localStorage.setItem("recentSearches", JSON.stringify(history));
+                
+                // Refresh UI immediately
+                refreshBubbles();
+            }
+        }, 2000); // 2000ms = 2 seconds
     });
 
-    detailEl.querySelectorAll(".search-bubble").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const val = btn.textContent;
-            searchInput.value = val;
-            performSearch(val);
-        });
-    });
+    // Initial Load of bubbles
+    refreshBubbles();
 
     const titleEl = detailEl.querySelector("#detailTitle");
     titleEl.addEventListener("click", () => {
@@ -990,7 +1010,6 @@ function showDetail(task) {
 
     checkLogToggle();
 }
-
 
 function toggleLog(toggleEl) {
   const taskTitle = document.getElementById("detailTitle")?.textContent?.trim() || "Unknown Task";
@@ -1340,4 +1359,3 @@ function updateTotalTasks(filteredTasks=null){
 </script>
 </body>
 </html>
-
