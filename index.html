@@ -1282,6 +1282,7 @@ function showBanner(message) {
   setTimeout(() => banner.classList.add("d-none"), 3000);
 }
 // === Generate and Download Excel Log ===
+// === Generate and Download Excel Log ===
 function generateWorkLog() {
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
   if (logs.length === 0) {
@@ -1289,22 +1290,54 @@ function generateWorkLog() {
     return;
   }
 
-  // Prepare rows for Brand | Task
-  const data = logs.map(l => ({ Brand: normalizeBrandName(l.brand), SubTask: l.subtask, Task: l.task, Status: l.status }));
+  // 1. Get Current Date in EST (New York Time)
+  const estDate = new Date().toLocaleDateString("en-US", {
+    timeZone: "America/New_York",
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
-  // Generate Excel file using Blob
+  // 2. Helper to make text "Proper Case" (e.g. "adidas" -> "Adidas")
+  const toProperCase = (str) => {
+    if (!str) return "";
+    // Handle special case for slash (e.g. Carolina/Double H)
+    if (str.includes("/")) return str; 
+    return str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase());
+  };
+
+  // 3. Prepare Data
+  const data = logs.map(l => ({
+    Brand: toProperCase(normalizeBrandName(l.brand)),
+    SubTask: l.subtask || "",
+    Task: l.task || "",
+    Status: l.status || ""
+  }));
+
+  // 4. Build CSV Content
+  // Format:
+  // Date: November 27, 2025
+  //
+  // Brand,Sub-Task,Task,Status
+  // Adidas,Validating,Title,Completed...
   const csvContent =
+    `Date: ${estDate}\n\n` + 
     "Brand,Sub-Task,Task,Status\n" +
-    data.map(d => `${d.Brand.replace(/,/g, " ")},${d.SubTask.replace(/,/g, " ")},${d.Task.replace(/,/g, " ")},${d.Status.replace(/,/g, " ")}`).join("\n");
+    data.map(d => {
+      // Wrap fields in quotes to handle commas safely
+      return `"${d.Brand}","${d.SubTask}","${d.Task}","${d.Status}"`;
+    }).join("\n");
 
+  // 5. Create Download
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
   link.setAttribute("href", url);
 
-  // File name includes date range
-  const now = new Date();
-  const fileName = `DailyReport_${now.toISOString().split("T")[0]}.csv`;
+  // File name example: DailyReport_November_27_2025.csv
+  const safeDateName = estDate.replace(/ /g, "_").replace(/,/g, "");
+  const fileName = `DailyReport_${safeDateName}.csv`;
+  
   link.setAttribute("download", fileName);
   document.body.appendChild(link);
   link.click();
