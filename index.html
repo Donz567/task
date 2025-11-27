@@ -794,7 +794,9 @@ function showDetail(task) {
     detailEl.style.display = "block";
 
     const cardTitle = task["Tasks"] || "Untitled";
-    const brand = normalizeBrandName(task["Brand"] || "nobrand");
+    // --- CHANGE: Force brand to lowercase for the View ---
+    const brand = normalizeBrandName(task["Brand"] || "nobrand").toLowerCase();
+    
     const status = (task["Status"] || "N/A").toLowerCase();
     const dateAssigned = formatDate(task._dateParsed);
     const sbsNote = task["TM's Note"] || "";
@@ -828,8 +830,8 @@ function showDetail(task) {
             const lower = t.toLowerCase();
             if (lower.startsWith("admin") || lower.startsWith("none")) return t;
             if (t.includes("[brand]")) {
-                const displayBrand = brand.charAt(0).toUpperCase() + brand.slice(1);
-                return t.replace(/\[brand\]/g, displayBrand) + ` (${cardTitle})`;
+                // --- CHANGE: Use lowercase 'brand' variable without capitalization ---
+                return t.replace(/\[brand\]/g, brand) + ` (${cardTitle})`;
             }
             return t;
         });
@@ -849,29 +851,23 @@ function showDetail(task) {
     }
 
     // --- SEARCH BUBBLES LOGIC (LIMIT 7 + DEDUPLICATE) ---
-    // 1. Get recent searches
     let recentSearches = JSON.parse(localStorage.getItem("recentSearches") || "[]");
     
-    // 2. NEW: Clean Duplicates (Case Insensitive)
-    // This removes "Test" if "test" is already there
+    // Clean Duplicates
     recentSearches = recentSearches.filter((item, index, self) =>
-        index === self.findIndex((t) => (
-            t.toLowerCase() === item.toLowerCase()
-        ))
+        index === self.findIndex((t) => (t.toLowerCase() === item.toLowerCase()))
     );
 
-    // 3. Limit to Top 7
+    // Limit to Top 7
     if (recentSearches.length > 7) {
         recentSearches = recentSearches.slice(0, 7);
-        localStorage.setItem("recentSearches", JSON.stringify(recentSearches)); // Save cleaned list
+        localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
     }
 
-    // 4. Defaults if empty
     if (recentSearches.length === 0) {
         recentSearches = ["Validating", "Analyzing", "Gathering", "Creation", "Admin"];
     }
 
-    // 5. Generate HTML
     const bubblesHtml = recentSearches.map(term => 
         `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill search-bubble mb-1" style="font-size: 0.75rem;">${term}</button>`
     ).join(" ");
@@ -916,13 +912,12 @@ function showDetail(task) {
         ${bubblesHtml}
     </div>
 
-    <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" autocomplete="off" placeholder="Search inside tasks...">
+    <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" autocomplete="off" placeholder="Search inside tasks... (Press Enter to save tag)">
     
     <div id="templateList">${rendered}</div>
     `;
 
-    // --- FUNCTIONALITY ---
-
+    // --- LISTENERS ---
     const searchInput = document.getElementById("templateSearch");
     
     function performSearch(term) {
@@ -940,37 +935,20 @@ function showDetail(task) {
         });
     }
 
-    // 1. SEARCH & SAVE
-    searchInput.addEventListener("input", (e) => {
-        performSearch(e.target.value);
-    });
+    searchInput.addEventListener("input", (e) => performSearch(e.target.value));
 
     searchInput.addEventListener("change", () => {
         const val = searchInput.value.trim();
         if (val.length > 2) { 
             let history = JSON.parse(localStorage.getItem("recentSearches") || "[]");
-            
-            // Remove existing version of this word (deduplicate before adding)
             history = history.filter(h => h.toLowerCase() !== val.toLowerCase());
-            
-            // Add to top
             history.unshift(val);
-            
-            // Clean Duplicates again just to be safe (Case Insensitive)
-            history = history.filter((item, index, self) =>
-                index === self.findIndex((t) => (
-                    t.toLowerCase() === item.toLowerCase()
-                ))
-            );
-
-            // Limit to Top 7
+            history = history.filter((item, index, self) => index === self.findIndex((t) => (t.toLowerCase() === item.toLowerCase())));
             if (history.length > 7) history = history.slice(0, 7);
-            
             localStorage.setItem("recentSearches", JSON.stringify(history));
         }
     });
 
-    // 2. Bubble Click
     detailEl.querySelectorAll(".search-bubble").forEach(btn => {
         btn.addEventListener("click", () => {
             const val = btn.textContent;
@@ -979,20 +957,15 @@ function showDetail(task) {
         });
     });
 
-    // 3. Copy
     const titleEl = detailEl.querySelector("#detailTitle");
     titleEl.addEventListener("click", () => {
-        navigator.clipboard.writeText(titleEl.textContent.trim()).then(() => {
-            showCopied(titleEl);
-        });
+        navigator.clipboard.writeText(titleEl.textContent.trim()).then(() => showCopied(titleEl));
     });
 
     detailEl.querySelectorAll(".task-item").forEach(item => {
         item.addEventListener("click", e => {
             e.stopPropagation();
-            navigator.clipboard.writeText(item.querySelector("span").innerText).then(() => {
-                showCopied(item);
-            });
+            navigator.clipboard.writeText(item.querySelector("span").innerText).then(() => showCopied(item));
         });
     });
 
@@ -1008,7 +981,6 @@ function showDetail(task) {
         setTimeout(() => indicator.remove(), 1000);
     }
 
-    // 4. Back Button
     document.getElementById("backBtn").addEventListener("click", () => {
         taskListEl.style.display = "grid";
         paginationEl.style.display = "flex";
@@ -1290,7 +1262,7 @@ function generateWorkLog() {
     return;
   }
 
-  // 1. Get Current Date in EST (New York Time)
+  // 1. Get Current Date in EST
   const estDate = new Date().toLocaleDateString("en-US", {
     timeZone: "America/New_York",
     year: 'numeric',
@@ -1301,12 +1273,11 @@ function generateWorkLog() {
   // 2. Helper to make text "Proper Case" (e.g. "adidas" -> "Adidas")
   const toProperCase = (str) => {
     if (!str) return "";
-    // Handle special case for slash (e.g. Carolina/Double H)
     if (str.includes("/")) return str; 
     return str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase());
   };
 
-  // 3. Prepare Data
+  // 3. Prepare Data (Applying Proper Case here)
   const data = logs.map(l => ({
     Brand: toProperCase(normalizeBrandName(l.brand)),
     SubTask: l.subtask || "",
@@ -1315,16 +1286,10 @@ function generateWorkLog() {
   }));
 
   // 4. Build CSV Content
-  // Format:
-  // Date: November 27, 2025
-  //
-  // Brand,Sub-Task,Task,Status
-  // Adidas,Validating,Title,Completed...
   const csvContent =
     `Date: ${estDate}\n\n` + 
     "Brand,Sub-Task,Task,Status\n" +
     data.map(d => {
-      // Wrap fields in quotes to handle commas safely
       return `"${d.Brand}","${d.SubTask}","${d.Task}","${d.Status}"`;
     }).join("\n");
 
@@ -1334,7 +1299,6 @@ function generateWorkLog() {
   const url = URL.createObjectURL(blob);
   link.setAttribute("href", url);
 
-  // File name example: DailyReport_November_27_2025.csv
   const safeDateName = estDate.replace(/ /g, "_").replace(/,/g, "");
   const fileName = `DailyReport_${safeDateName}.csv`;
   
@@ -1343,7 +1307,6 @@ function generateWorkLog() {
   link.click();
   document.body.removeChild(link);
 
-  // Clear logs afterward
   localStorage.removeItem("taskLogs");
   showBanner("Work log generated and cleared from storage.", "success");
 }
