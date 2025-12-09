@@ -12,7 +12,7 @@ body {
     background-color: #f8fafc;
     color: #1a1a1a;
     font-family: 'Segoe UI', Tahoma, sans-serif;
-    padding-bottom: 120px; /* Extra space at bottom so buttons don't cover content */
+    padding-bottom: 120px;
 }
 
 /* --- GLASS EFFECT STYLES --- */
@@ -25,7 +25,6 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Glass effect for the buttons */
 .glass-btn {
     background: rgba(33, 37, 41, 0.85);
     backdrop-filter: blur(8px);
@@ -34,7 +33,7 @@ body {
     color: white;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     transition: transform 0.2s ease, background 0.2s;
-    min-width: 120px; /* Ensures consistent width */
+    min-width: 120px; 
 }
 .glass-btn:hover {
     background: rgba(33, 37, 41, 0.95);
@@ -47,7 +46,7 @@ body {
     border: 1px solid #0dcaf0;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    min-width: 120px; /* Ensures consistent width */
+    min-width: 120px; 
 }
 .glass-btn-light:hover {
     background: #fff;
@@ -55,18 +54,55 @@ body {
     transform: scale(1.05);
 }
 
-.navbar {
-    background: transparent; 
+.navbar { background: transparent; }
+
+/* --- BRAND BUBBLE WRAPPER (Compact & Wrapped) --- */
+#brandFilterWrapper {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to drop to next line */
+    gap: 5px;        /* Tiny gap between bubbles */
+    margin-bottom: 10px;
+    padding-bottom: 0;
+    overflow-x: visible; /* No scrollbar */
 }
 
-/* --- FLOATING CONTAINER (Bottom Right Corner) --- */
+.brand-bubble {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;    /* Very small padding */
+    border-radius: 20px;  /* Pill shape */
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    font-size: 0.75rem;   /* Small text */
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.brand-bubble:hover {
+    background-color: #f1f3f5;
+    transform: translateY(-1px);
+    border-color: #adb5bd;
+}
+
+.brand-bubble.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+    box-shadow: 0 1px 4px rgba(13, 110, 253, 0.2);
+}
+
+/* --- FLOATING CONTAINER --- */
 .floating-actions {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 1040; /* High enough to float, low enough to stay BEHIND modals */
+    z-index: 1040; 
     display: flex;
-    flex-direction: column; /* Stack buttons vertically */
+    flex-direction: column; 
     gap: 12px;
     align-items: flex-end;
 }
@@ -94,11 +130,15 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 .task-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
+.task-card * { position: relative; z-index: 1; }
+
 .task-title {
     font-weight: bold;
     font-size: 1.1rem;
@@ -119,18 +159,22 @@ body {
 .status-ongoing { background: #d9eafd; color: #1a1a1a; }
 .status-cancelled { background: #fdd9d9; color: #1a1a1a; }
 .status-assigned { background: #f5f5d9; color: #1a1a1a; }
+
 .bc-btn {
-    background: #1a1a1a;
-    color: #fff;
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: #0e0f0f;
+    color: white;
+    padding: 5px;
+    border-radius: 6px;
     text-decoration: none;
-    border-radius: 8px;
-    padding: 5px 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+    font-weight: 500;
+    transition: background 0.2s ease;
     margin-top: auto;
 }
-.bc-btn:hover { background: #333; text-decoration: none; }
+.bc-btn:hover { background: #35373b; color: white; text-decoration: none; }
+
 #filterBar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
 #taskList { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 1rem; }
 
@@ -143,8 +187,6 @@ body {
     color: #1a1a1a;
     margin-bottom: 2px;
 }
-
-/* only for text background */
 .label-task-text { background-color: #ffd54f; }
 .label-subtask-text { background-color: #81c784; }
 .label-brand-text { background-color: #64b5f6; }
@@ -163,191 +205,101 @@ body {
 #aboutSection {
     display: none;
     background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 50px 30px;
     margin-top: 20px;
     text-align: center;
 }
 
-.task-item .copyBtn {
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.task-item:hover .copyBtn {
-  opacity: 1;
-}
 .daily-reminder {
-  position: fixed;
-  top: 70px;
-  right: 20px;
-  z-index: 2000;
-  background: #e3f2fd;
-  padding: 15px;
-  border: 1px solid #90caf9;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  max-width: 320px;
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 2000;
+    background: #e3f2fd;
+    padding: 15px;
+    border: 1px solid #90caf9;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    max-width: 320px;
 }
 .daily-reminder ul {
-  margin: 5px 0;
-  padding-left: 20px;
-  max-height: 150px;
-  overflow-y: auto;
-  font-size: 0.9rem;
-}
-.daily-reminder a {
-  margin-left: 6px;
-  font-size: 0.8rem;
-  color: #1565c0;
-  text-decoration: underline;
-}
-.task-item {
-  cursor: pointer;
-  transition: background-color 0.2s, box-shadow 0.2s;
-  position: relative;
-}
-
-.task-item:hover {
-  background-color: #e8f5e9;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-
-.task-item .copied-indicator {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.85em;
-  color: #28a745;
-  font-weight: bold;
-}
-.task-card {
- position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: hidden;
-  
-}
-.task-card * {
-  position: relative;
-  z-index: 1;
-}
-.bc-btn-wrapper {
-  margin-top: auto;
-  width: 100%;
-}
-
-.bc-btn {
-  display: block;
-  width: 100%;
-  text-align: center;
-  background: #0e0f0f;
-  color: white;
-  padding: 5px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: background 0.2s ease;
-}
-
-.bc-btn:hover {
-  background: #35373b;
-  color: white;
+    margin: 5px 0;
+    padding-left: 20px;
+    max-height: 150px;
+    overflow-y: auto;
+    font-size: 0.9rem;
 }
 
 .task-bg-icon {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  font-size: 140px;
-  color: inherit;
-  opacity: 0.05;
-  pointer-events: none;
-  z-index: 0;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    font-size: 140px;
+    color: inherit;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
 }
-/* --- Stylish Bigger Toggle Switch --- */
+/* Toggle Switch */
 .toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 70px;
-  height: 33px;
+    position: relative;
+    display: inline-block;
+    width: 70px;
+    height: 33px;
 }
-
-.toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 36px;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 36px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
 }
-
 .slider::before {
-  position: absolute;
-  content: "";
-  height: 25px;
-  width: 25px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: absolute;
+    content: "";
+    height: 25px; width: 25px;
+    left: 4px; bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
-#detailTitle {
-  cursor: pointer;
-  position: relative;
-}
-
-
-/* ON State */
 .toggle-switch input:checked + .slider {
-  background-color: #0d6efd;
-  box-shadow: 0 0 10px rgba(13, 110, 253, 0.8);
+    background-color: #0d6efd;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.8);
 }
+.toggle-switch input:checked + .slider::before { transform: translateX(34px); }
 
-.toggle-switch input:checked + .slider::before {
-  transform: translateX(34px);
-}
-
-/* Smooth hover */
-.toggle-switch:hover .slider {
-  box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
-}
-/* Loading Overlay */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(255, 255, 255, 0.85);
-  z-index: 2000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: opacity 0.3s ease;
-}
+/* Detail Title Cursor */
+#detailTitle { cursor: pointer; position: relative; }
 
 /* Sticky back + toggle bar */
 .detail-header {
-  position: sticky;
-  top: 70px; /* Adjust based on navbar height */
-  z-index: 1020;
-  background: #fff;
-  padding: 10px 0;
-  
+    position: sticky;
+    top: 70px;
+    z-index: 1020;
+    background: #fff;
+    padding: 10px 0;
 }
 
+/* Feature Icon Box for About Page */
+.feature-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: #e7f1ff;
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 15px;
+}
 </style>
 </head>
 <body>
@@ -409,27 +361,43 @@ body {
   <div id="taskDetail"></div>
 
   <div id="aboutSection">
-      <h1 class="display-5 fw-bold text-primary mb-4">Exclusive Task Manager</h1>
-      <img src="https://cdn-icons-png.flaticon.com/512/906/906334.png" alt="Task Icon" style="width: 100px; margin-bottom: 20px;">
-      <p class="lead">A comprehensive tool designed for efficient task tracking, logging, and brand management.</p>
-      
-      <hr class="my-4 w-50 mx-auto">
-      
-      <div class="row justify-content-center text-start">
-        <div class="col-md-6">
-            <h5 class="fw-bold"><i class="bi bi-check-circle-fill text-success"></i> Key Features</h5>
-            <ul class="list-unstyled">
-                <li>✅ Real-time Task Synchronization</li>
-                <li>✅ Daily Work Log Generation</li>
-                <li>✅ Smart Template Search</li>
-                <li>✅ With Image Tools for Vertx</li>
-            </ul>
-        </div>
+      <div class="mb-5">
+        <img src="https://cdn-icons-png.flaticon.com/512/906/906334.png" alt="Task Icon" style="width: 80px; margin-bottom: 20px;">
+        <h1 class="display-6 fw-bold text-dark mb-3">Exclusive Task Manager</h1>
+        <p class="text-muted fs-5">Efficiency meets clarity. Your ultimate tool for tracking, logging, and managing daily operations.</p>
+        <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mt-2">✨ Version 2.0.7</div>
       </div>
       
-      <div class="mt-5">
-        <p class="text-muted small">Version 2.0.7</p>
-        <button class="btn btn-primary" onclick="showHome()">Back to Tasks</button>
+      <div class="row justify-content-center g-4 text-center">
+        <div class="col-md-3">
+            <div class="feature-icon-box"><i class="bi bi-arrow-repeat"></i></div>
+            <h6 class="fw-bold">Real-time Sync</h6>
+            <p class="small text-muted">Tasks update automatically every 30 seconds.</p>
+        </div>
+        <div class="col-md-3">
+            <div class="feature-icon-box"><i class="bi bi-file-earmark-spreadsheet"></i></div>
+            <h6 class="fw-bold">Daily Logs</h6>
+            <p class="small text-muted">Generate & export CSV reports with one click.</p>
+        </div>
+        <div class="col-md-3">
+            <div class="feature-icon-box"><i class="bi bi-magic"></i></div>
+            <h6 class="fw-bold">Smart Templates</h6>
+            <p class="small text-muted">Copy/paste standardized task templates instantly.</p>
+        </div>
+        <div class="col-md-3">
+            <div class="feature-icon-box"><i class="bi bi-images"></i></div>
+            <h6 class="fw-bold">Image Tools</h6>
+            <p class="small text-muted">Integrated Vertx image editor for seamless workflows.</p>
+        </div>
+      </div>
+
+      <hr class="my-5 opacity-25">
+
+      <div class="text-center">
+        <h5 class="fw-bold mb-3">🚀 Ready to maximize productivity?</h5>
+        <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm" onclick="showHome()">
+            <i class="bi bi-arrow-left me-2"></i> Return to Dashboard
+        </button>
       </div>
   </div>
   
