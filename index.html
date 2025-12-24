@@ -56,44 +56,6 @@ body {
 
 .navbar { background: transparent; }
 
-/* --- BRAND BUBBLE WRAPPER (Compact & Wrapped) --- */
-#brandFilterWrapper {
-    display: flex;
-    flex-wrap: wrap; /* Allow items to drop to next line */
-    gap: 5px;        /* Tiny gap between bubbles */
-    margin-bottom: 10px;
-    padding-bottom: 0;
-    overflow-x: visible; /* No scrollbar */
-}
-
-.brand-bubble {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3px 10px;    /* Very small padding */
-    border-radius: 20px;  /* Pill shape */
-    background-color: #fff;
-    border: 1px solid #dee2e6;
-    font-size: 0.75rem;   /* Small text */
-    font-weight: 500;
-    color: #495057;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    user-select: none;
-}
-
-.brand-bubble:hover {
-    background-color: #f1f3f5;
-    transform: translateY(-1px);
-    border-color: #adb5bd;
-}
-
-.brand-bubble.active {
-    background-color: #0d6efd;
-    color: white;
-    border-color: #0d6efd;
-    box-shadow: 0 1px 4px rgba(13, 110, 253, 0.2);
-}
 
 /* --- FLOATING CONTAINER --- */
 .floating-actions {
@@ -384,8 +346,8 @@ body {
         </div>
         <div class="col-md-3">
             <div class="feature-icon-box"><i class="bi bi-magic"></i></div>
-            <h6 class="fw-bold">Smart TD Task Name</h6>
-            <p class="small text-muted">Copy/paste standardized TD task name instantly.</p>
+            <h6 class="fw-bold">Smart Templates</h6>
+            <p class="small text-muted">Copy/paste standardized task templates instantly.</p>
         </div>
         <div class="col-md-3">
             <div class="feature-icon-box"><i class="bi bi-images"></i></div>
@@ -905,7 +867,7 @@ function showDetail(task) {
         "Gathering Data": [ "[brand]-gathering-new supplier data", "[brand]-gathering-existing supplier data", "[brand]-gathering-bulk/preebook data", "[brand]-gathering-enhancement data", "[brand]-gathering-flat file data", "[brand]-gathering-pre existing asins", "[brand]-gathering-skus for deletion", "[brand]-gathering-brand store data", "[brand]-gathering-shopify data", "[brand]-gathering-shopkeep data", "[brand]-gathering-skus for deletion", "[brand]-gathering-SIPV", "[brand]-gathering-manage experiment", "all brands-gathering-voice of the customer", "all brands-gathering-suppressed listings", "all brands-gathering-stranded listings", "all brands-gathering-standalone listings" ], 
         "Creation": [ "[brand]-creating-new supplier masterlist", "[brand]-creating-existing supplier masterlist", "[brand]-creating- bulk/prebook masterlist", "[brand]-creating-new supplier listing loader file", "[brand]-creating-existing supplier listing loader file", "[brand]-creating-bulk/prebook listing loader file", "[brand]-creating-new supplier ilf", "[brand]-creating-existing supplier ilf", "[brand]-creating-bulk/prebook ilf", "[brand]-creating-new supplier cost sheet", "[brand]-creating-new supplier sku upc list", "[brand]-creating-existing supplier cost sheet", "[brand]-creating-existing supplier sku upc list", "[brand]-creating-bulk/prebook cost sheet", "[brand]-creating-bulk/prebook sku upc list", "[brand]-creating-existing supplier advertising campaign list", "[brand]-creating-flat file enhancement", "[brand]-creating-flat file listing concern", "creating-manage experiment", "[brand]-creating-ebc enhancement" ], 
         "Verification / Image Update": [ "[brand]-verifying-upc match manual", "[brand]-verifying-data central result", "[brand]-verifying-listing loader request", "[brand]-verifying-image urls", "[brand]-enhancing-images for enhancement", "[brand]-updating-sas flat file", "[brand]-updating-listing in amazon", "[brand]-updating-edit page manually enhancement" ], 
-        "Review / Upload": [ "[brand]-reviewing-all files", "[brand]-reviewing-newly uploaded listings", "[brand]-uploading-ilf", "[brand]-uploading-flat file", "[brand]-uploading-shipping plan", "[brand]-uploading-weights and dimensions", "[brand]-uploading-video", "[brand]-uploading-images", "[brand]-attaching-files in bc", "[brand]-reviewing-all files enhancement", "[brand]-attaching-files in bc enhancement", "[brand]-uploading-flat file enhancement", "[brand]-uploading-video enhancement" ], 
+        "Review / Upload": [ "[brand]-reviewing-all files", "[brand]-reviewing-newly uploaded listings","[brand]-reviewing-newly uploaded listings enhancement", "[brand]-uploading-ilf", "[brand]-uploading-flat file", "[brand]-uploading-shipping plan", "[brand]-uploading-weights and dimensions", "[brand]-uploading-video", "[brand]-uploading-images", "[brand]-attaching-files in bc", "[brand]-reviewing-all files enhancement", "[brand]-attaching-files in bc enhancement", "[brand]-uploading-flat file enhancement", "[brand]-uploading-video enhancement" ], 
         "Investigation / Fixing / Correction": [ "[brand]-investigating-listing issue", "[brand]-fixing-suppressed/quality alerts", "[brand]-fixing-stranded inventory", "[brand]-fixing-standalone", "[brand]-correcting-masterlist file", "[brand]-correcting-ilf", "[brand]-correcting-cost sheet", "[brand]-correcting-sku-upc list", "[brand]-correcting-flatfile error", "[brand]-investigating-pesticide marking", "[brand]-fixing-listing issue", "[brand]-investigating-listing enhancement", "[brand]-correcting-flatfile error enhancement", "[brand]-investigating-SIP", "[brand]-investigating-policy warning", "[brand]-investigating-inaccurate condition complaint" ], 
         "Update / Send & Monitor Case": [ "[brand]-updating-trackers", "[brand]-updating-ebc", "[brand]-updating-search terms", "[brand]-sending-amazon case", "[brand]-sending-sas email", "[brand]-checking-amazon case & ff ups", "[brand]-checking-sas response", "[brand]-sending-sas ops", "[brand]-sending-amazon case enhancement", "[brand]-checking-amazon case & ff ups enhancement", "[brand]-updating-ebc enhancement", "[brand]-updating-search terms enhancement", "[brand]-sending-appeal" ], 
         "Monitoring": [ "none-checking-skype concerns", "none-checking-email concerns", "none-checking-basecamp notifications", "none-prioritizing tasks", "none-addressing-concerns-via skype", "none-addressing-concerns-via email", "none-addressing-concerns-via basecamp", "[brand]-logging-in 2P account", "[brand]-logging-in 1P account" ], 
@@ -1447,5 +1409,3 @@ function updateTotalTasks(filteredTasks=null){
 </script>
 </body>
 </html>
-
-
