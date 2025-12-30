@@ -39,22 +39,19 @@ body {
     background: rgba(33, 37, 41, 0.95);
     color: #fff;
     transform: scale(1.05);
-    
 }
 .glass-btn-light {
     background: rgba(255, 255, 255, 0.9);
     color: #0dcaf0;
-    border: 1px solid #0baccc;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    min-width: 140px; /* Increased slightly to fit 'Chrome Extensions' text */
-    transition: transform 0.2s ease, background 0.2s;
+    border: 1px solid #0dcaf0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    min-width: 120px; 
 }
 .glass-btn-light:hover {
     background: #fff;
     color: #0aa2c0;
     transform: scale(1.05);
-    border: 1px solid #0baccc;
 }
 
 .navbar { background: transparent; }
@@ -156,39 +153,25 @@ body {
 .label-subtask-text { background-color: #81c784; }
 .label-brand-text { background-color: #64b5f6; }
 
-/* Section visibility control */
-#taskDetail, #aboutSection, #extensionsSection {
+/* Detail view styling */
+#taskDetail {
     display: none;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     padding: 20px;
     margin-top: 20px;
+    scroll-padding-top: 80px;
 }
-
-/* Chrome Extensions Styling */
-.ext-card {
-    border-radius: 12px;
-    padding: 20px;
+/* About view styling */
+#aboutSection {
+    display: none;
     background: #fff;
-    border: 1px solid #eee;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 50px 30px;
+    margin-top: 20px;
     text-align: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    height: 100%;
-}
-.ext-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    border-color: #0d6efd;
-}
-.ext-icon {
-    font-size: 2.5rem;
-    color: #0d6efd;
-    margin-bottom: 10px;
 }
 
 .daily-reminder {
@@ -342,63 +325,8 @@ body {
   
   <div id="taskDetail"></div>
 
-  <div id="extensionsSection">
-      <div class="text-center mb-5">
-        <h2 class="fw-bold">Chrome Extensions</h2>
-        <p class="text-muted">Tools developed to enhance your productivity.</p>
-      </div>
-
-      <div class="row g-4 mb-5">
-          <div class="col-md-3">
-              <a href="https://github.com/Donz567/task/raw/refs/heads/main/DragScreenShot.zip" download class="ext-card shadow-sm">
-                  <i class="bi bi-lightning-charge ext-icon"></i>
-                  <h6>Drag Screenshot</h6>
-                  <p class="small text-muted mb-0">Select specific area and drag down to take the picture.</p>
-              </a>
-          </div>
-          <div class="col-md-3">
-              <a href="https://github.com/Donz567/task/raw/refs/heads/main/Quoteshrtct.zip" download class="ext-card shadow-sm">
-                  <i class="bi bi-images ext-icon"></i>
-                  <h6>Shortcut Status in Basecamp</h6>
-                  <p class="small text-muted mb-0">Shortcut for status in basecamp.</p>
-              </a>
-          </div>
-          <div class="col-md-3">
-              <a href="https://github.com/Donz567/task/raw/refs/heads/main/CopyPasteChecklistBC.zip" download class="ext-card shadow-sm">
-                  <i class="bi bi-browser-chrome ext-icon"></i>
-                  <h6>Basecamp Checklist</h6>
-                  <p class="small text-muted mb-0">Add checklist in basecamp using this item.</p>
-              </a>
-          </div>
-          <div class="col-md-3">
-              <a href="https://github.com/Donz567/task/raw/refs/heads/main/Suppressed.zip" download class="ext-card shadow-sm">
-                  <i class="bi bi-regex ext-icon"></i>
-                  <h6>Scrape Suppressed</h6>
-                  <p class="small text-muted mb-0">Scrape Suppressed.</p>
-              </a>
-          </div>
-      </div>
-
-      <div class="bg-light p-4 rounded-4 border">
-          <h5 class="fw-bold mb-3"><i class="bi bi-info-circle-fill me-2 text-primary"></i>How to Install</h5>
-          <ol class="mb-0">
-              <li>Click a card above to <strong>download</strong> the ZIP file.</li>
-              <li><strong>Extract</strong> the ZIP file to a folder on your Desktop.</li>
-              <li>In Chrome, go to <code>chrome://extensions/</code>.</li>
-              <li>Enable <strong>"Developer mode"</strong> (top right toggle).</li>
-              <li>Click <strong>"Load unpacked"</strong> and select your extracted folder.</li>
-          </ol>
-      </div>
-
-      <div class="text-center mt-5">
-        <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm" onclick="showHome()">
-            <i class="bi bi-arrow-left me-2"></i> Return to Dashboard
-        </button>
-      </div>
-  </div>
-
   <div id="aboutSection">
-      <div class="mb-5 text-center">
+      <div class="mb-5">
         <img src="https://cdn-icons-png.flaticon.com/512/906/906334.png" alt="Task Icon" style="width: 80px; margin-bottom: 20px;">
         <h1 class="display-6 fw-bold text-dark mb-3">Exclusive Task Manager</h1>
         <p class="text-muted fs-5">Efficiency meets clarity. Your ultimate tool for tracking, logging, and managing daily operations.</p>
@@ -444,11 +372,7 @@ body {
 </div>
 
 <div class="floating-actions">
-    <button id="extBtn" class="btn glass-btn-light shadow">
-        <i class="bi bi-puzzle"></i> Chrome Ext.
-    </button>
-
-    <button id="aboutBtn" class="btn glass-btn-light shadow">
+    <button id="aboutBtn" class="btn glass-btn shadow">
         <i class="bi bi-info-circle"></i> About
     </button>
 
@@ -492,43 +416,27 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("statusFilter").addEventListener("change", () => { currentPage = 1; filterTasks(); });
     document.getElementById("logoutBtn").addEventListener("click", logout);
     document.getElementById("aboutBtn").addEventListener("click", showAbout);
-    document.getElementById("extBtn").addEventListener("click", showExtensions);
     setInterval(() => { fetchTasks().then(() => filterTasks(true)); }, 30000);
 });
 
-// Logic to handle Extension Page
-function showExtensions() {
-    document.getElementById("taskList").style.display = "none";
-    document.getElementById("pagination").style.display = "none";
-    document.getElementById("filterBar").style.display = "none";
-    document.getElementById("taskDetail").style.display = "none";
-    document.getElementById("aboutSection").style.display = "none";
-    document.getElementById("extensionsSection").style.display = "block";
-    window.scrollTo(0, 0);
-}
-
-// Updated About Page logic
+// Function to handle showing the About Page
 function showAbout() {
     document.getElementById("taskList").style.display = "none";
     document.getElementById("pagination").style.display = "none";
     document.getElementById("filterBar").style.display = "none";
     document.getElementById("taskDetail").style.display = "none";
-    document.getElementById("extensionsSection").style.display = "none";
     document.getElementById("aboutSection").style.display = "block";
-    window.scrollTo(0, 0); 
+    window.scrollTo(0, 0); // Scroll top for about page
 }
 
-// Updated Home Logic
+// Function to handle returning Home
 function showHome() {
     document.getElementById("taskList").style.display = "grid";
     document.getElementById("pagination").style.display = "flex";
     document.getElementById("filterBar").style.display = "flex";
     document.getElementById("taskDetail").style.display = "none";
     document.getElementById("aboutSection").style.display = "none";
-    document.getElementById("extensionsSection").style.display = "none";
 }
-
-// (Rest of the task manager logic remains identical below...)
 
 async function initApp() {
     await fetchTasks();
@@ -688,6 +596,23 @@ console.log("Parsed Date:", obj._dateParsed);
 }
 
 function setupLogin() {
+    const agentMap = {
+        "Adriana, Venz": "Venz",
+        "Marisa, Venz": "Venz",
+        "Venz, Adriana": "Venz",
+        "Adriana, Marisa": "Marisa",
+        "Marisa, Adriana": "Marisa",
+        "Marisa, Marissa C": "Marisa",
+        "Marisa, Venz": "Marisa",
+        "Adriana, Peter": "Peter",
+        "Peter, Jonathan": "Peter",
+        "Adriana, Ezequel": "Ezequel",
+        "Raven, Andrew": "Raven",
+        "Adriana, Sedney": "Sedney",
+        "Adriana, Jhonmar": "Jhonmar",
+        "Adriana, Jade": "Jade",
+    };
+
     const loginName = localStorage.getItem("agent");
     if(loginName){
         document.getElementById("logoutBtn").style.display="inline-block";
@@ -740,6 +665,8 @@ function filterTasks(isRefresh=false){
         }
         filtered = filtered.filter(t => Object.values(t).some(val => String(val).toLowerCase().includes(search)));
     renderTasks(filtered,isRefresh);
+    //updateStatusSummary(filtered);
+    //updateSBSSummary(filtered);
     updateTotalTasks(filtered);
     });
 }
@@ -749,6 +676,7 @@ function updateStatusSummary() {
     const loginName = localStorage.getItem("agent");
     if(!loginName) return;
 
+    // Count all tasks for this agent, ignoring filters
     const data = tasks.filter(t => t["Agent Assigned"] === loginName);
     const counts = {ongoing:0, completed:0, cancelled:0, assigned:0};
     data.forEach(t => {
@@ -771,98 +699,159 @@ function updateSBSSummary(filteredTasks = null) {
     if (!loginName) return;
 
     const data = filteredTasks || tasks.filter(t => t["Agent Assigned"] === loginName);
+
+    // Total SBS: count all tasks with TM's Note
     const totalSBS = data.filter(t => t["TM's Note"]).length;
+
+    // Display only Total SBS
     summaryEl.innerHTML = `<div>Total SBS: ${totalSBS}</div>`;
 }
+
+
 
 function updateFavicon(count) {
   const canvas = document.createElement("canvas");
   canvas.width = 64;
   canvas.height = 64;
   const ctx = canvas.getContext("2d");
+
+  // 1. Draw star emoji (Shifted slightly left to make room for badge)
   ctx.font = "54px Segoe UI Emoji";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("⭐", 26, 38); 
+
+  // 2. Draw Red Badge (Much Bigger)
   if (count > 0) {
     ctx.beginPath();
+    // Circle centered at top-right (x=46, y=18), Radius=22 (Big!)
     ctx.arc(46, 18, 22, 0, 2 * Math.PI); 
-    ctx.fillStyle = "#ff0000"; 
+    ctx.fillStyle = "#ff0000"; // Bright Red
     ctx.fill();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = "#ffffff"; 
+    ctx.strokeStyle = "#ffffff"; // White border to separate from star
     ctx.stroke();
+
+    // 3. Draw Number (Big & Bold)
     ctx.fillStyle = "white";
-    ctx.font = "bold 28px Arial"; 
+    ctx.font = "bold 28px Arial"; // Increased font size significantly
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    // Adjust text position slightly to center in the circle
     ctx.fillText(count > 99 ? "99+" : count, 46, 19); 
   }
+
+  // Apply favicon
   const link = document.querySelector("link[rel='icon']") || document.createElement("link");
   link.rel = "icon";
   link.href = canvas.toDataURL("image/png");
   document.head.appendChild(link);
 }
 
+
 function renderTasks(taskArray){
     const taskList = document.getElementById("taskList");
-    taskList.innerHTML = "";
+    taskList.innerHTML = ""; // always clear first
+
     const totalPages = Math.ceil(taskArray.length/tasksPerPage);
     const start = (currentPage-1)*tasksPerPage;
     const paginated = taskArray.slice(start,start+tasksPerPage);
+
     paginated.forEach(t => {
         const status = (t["Status"]||"").toLowerCase();
         const bcLink = t["BC Link"] || "#";
         const brand = normalizeBrandName(t["Brand"]) || "N/A";
+
         const card = document.createElement("div");
         card.className = "task-card";
         card.innerHTML = `
+            
                 <div class="task-title">${t["Tasks"]||"Untitled"}</div>
-                <div class="task-info"><i class="bi bi-tags text-primary"></i> <span class="label-badge label-brand-text">${brand}</span></div>
-                <div class="task-info"><i class="bi bi-list-task text-warning"></i> <span class="label-badge label-task-text">${t["Task"]||"N/A"}</span></div>
-                <div class="task-info"><i class="bi bi-check2-square text-success"></i> <span class="label-badge label-subtask-text">${t["Sub-Task"]||"N/A"}</span></div>
-                <div class="task-info"><i class="bi bi-flag text-info"></i> <span class="status-badge status-${(t["Status"]||"N/A").toLowerCase()}">${t["Status"] || "N/A"}</span></div>
-                <div class="task-info"><i class="bi bi-calendar-event text-primary"></i> ${formatDate(t._dateParsed) || "N/A"}</div>
-                <a href="${bcLink}" target="_blank" class="bc-btn"><i class="bi bi-link-45deg"></i> BC Link</a>
+
+                <div class="task-info">
+                    <i class="bi bi-tags text-primary"></i>
+                    <span class="label-badge label-brand-text">${brand}</span>
+                  </div>
+
+                  <div class="task-info">
+                    <i class="bi bi-list-task text-warning"></i>
+                    <span class="label-badge label-task-text">${t["Task"]||"N/A"}</span>
+                  </div>
+
+                  <div class="task-info">
+                    <i class="bi bi-check2-square text-success"></i>
+                    <span class="label-badge label-subtask-text">${t["Sub-Task"]||"N/A"}</span>
+                  </div>
+                  <div class="task-info">
+                      <i class="bi bi-flag text-info"></i>
+                      <span class="status-badge status-${(t["Status"]||"N/A").toLowerCase()}">
+                        ${t["Status"] || "N/A"}
+                      </span>
+                    </div>
+
+                  <div class="task-info">
+                    <i class="bi bi-calendar-event text-primary"></i>
+                    ${formatDate(t._dateParsed) || "N/A"}
+                  </div>
+                </div>
+
+                <a href="${bcLink}" target="_blank" class="bc-btn">
+                  <i class="bi bi-link-45deg"></i> BC Link
+                </a>
+
             ${getBackgroundIcon(status)}
         `;
-        card.addEventListener("click", (e)=>{ if (!e.target.closest(".bc-btn")) showDetail(t); });
+        card.addEventListener("click", (e)=>{
+            if (!e.target.closest(".bc-btn")) showDetail(t);
+        });
         taskList.appendChild(card);
     });
+
     renderPagination(totalPages);
 }
-
 function getBackgroundIcon(status) {
   switch(status) {
-    case "ongoing": return `<i class="bi bi-hourglass-split task-bg-icon text-primary"></i>`;
-    case "completed": return `<i class="bi bi-check2-circle task-bg-icon text-success"></i>`;
-    case "cancelled": return `<i class="bi bi-slash-circle task-bg-icon text-danger"></i>`;
-    case "assigned": return `<i class="bi bi-person-workspace task-bg-icon text-warning"></i>`;
-    default: return ``;
+    case "ongoing": 
+      return `<i class="bi bi-hourglass-split task-bg-icon text-primary"></i>`;
+    case "completed": 
+      return `<i class="bi bi-check2-circle task-bg-icon text-success"></i>`;
+    case "cancelled": 
+      return `<i class="bi bi-slash-circle task-bg-icon text-danger"></i>`;
+    case "assigned": 
+      return `<i class="bi bi-person-workspace task-bg-icon text-warning"></i>`;
+    default: 
+      return ``;
   }
 }
 
 function showDetail(task) {
+    // 1. Save scroll position
     lastScrollPosition = window.scrollY;
+
     const taskListEl = document.getElementById("taskList");
     const paginationEl = document.getElementById("pagination");
     const filterBarEl = document.getElementById("filterBar");
     const detailEl = document.getElementById("taskDetail");
     const aboutEl = document.getElementById("aboutSection");
-    const extEl = document.getElementById("extensionsSection");
+
+    // Hide main view and About view
     taskListEl.style.display = "none";
     paginationEl.style.display = "none";
     filterBarEl.style.display = "none";
     aboutEl.style.display = "none";
-    extEl.style.display = "none";
     detailEl.style.display = "block";
+
+    // 2. Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
     const cardTitle = task["Tasks"] || "Untitled";
     const brand = normalizeBrandName(task["Brand"] || "nobrand").toLowerCase();
+    
     const status = (task["Status"] || "N/A").toLowerCase();
     const dateAssigned = formatDate(task._dateParsed);
     const sbsNote = task["TM's Note"] || "";
     const bcLink = task["BC Link"] || "#";
+    
     function statusClass(s) {
         if (s === "completed") return "status-completed";
         if (s === "ongoing") return "status-ongoing";
@@ -871,6 +860,7 @@ function showDetail(task) {
         return "badge bg-secondary";
     }
 
+    // --- CATEGORIES DATA ---
     const categories = { 
         "Validation": [ "[brand]-validating-data for new supplier", "[brand]-validating-upc list source" ], 
         "Analysis": [ "[brand]-analyzing-task prioritization", "[brand]-analyzing-new supplier source", "[brand]-analyzing-existing supplier source", "[brand]-analyzing-bulk order source", "[brand]-analyzing-prebook order source", "[brand]-analyzing-inventory for deletion", "[brand]-analyzing-listing loader request", "[brand]-analyzing-shopify source", "analyzing-manage experiment", "[brand]-analyzing-shopkeep source" ], 
@@ -889,28 +879,51 @@ function showDetail(task) {
         const processed = items.map(t => {
             const lower = t.toLowerCase();
             if (lower.startsWith("admin") || lower.startsWith("none")) return t;
-            if (t.includes("[brand]")) return t.replace(/\[brand\]/g, brand) + ` (${cardTitle})`;
+            if (t.includes("[brand]")) {
+                return t.replace(/\[brand\]/g, brand) + ` (${cardTitle})`;
+            }
             return t;
         });
+
         rendered += `
         <h6 class="mt-3 mb-2 fw-bold text-primary">${header}</h6>
-        <div class="row">${processed.map(item => `
+        <div class="row">
+            ${processed.map(item => `
                 <div class="col-md-6 mb-2">
                     <div class="task-item d-flex align-items-center border rounded px-2 py-1 small bg-light text-truncate" title="Click to copy">
                         <span class="flex-grow-1 me-2">${item}</span>
                     </div>
-                </div>`).join("")}</div>`;
+                </div>
+            `).join("")}
+        </div>
+        `;
     }
 
+    // --- INJECT HTML ---
     detailEl.innerHTML = `
     <div class="detail-header d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center gap-3">
-          <button class="btn btn-sm btn-outline-secondary" id="backBtn"><i class="bi bi-arrow-left"></i> Back to Tasks</button>
-          <label class="toggle-switch"><input type="checkbox" id="logToggle" onchange="toggleLog(this)"><span class="slider"></span></label>
+          <button class="btn btn-sm btn-outline-secondary" id="backBtn">
+            <i class="bi bi-arrow-left"></i> Back to Tasks
+          </button>
+          <label class="toggle-switch">
+            <input type="checkbox" id="logToggle" onchange="toggleLog(this)">
+            <span class="slider"></span>
+          </label>
           <span class="fw-bold text-secondary">Working?</span>
         </div>
-        ${normalizeBrandName(task["Brand"]).toLowerCase() === "vertx" ? `<div class="d-flex align-items-center gap-2"><span class="fw-bold text-secondary">Tool:</span><a href="https://donz567.github.io/whiteeditor/" target="_blank" class="btn btn-outline-dark rounded-pill px-2 py-1">Image Editor</a></div>` : ""}
+
+        ${
+          normalizeBrandName(task["Brand"]).toLowerCase() === "vertx"
+            ? `<div class="d-flex align-items-center gap-2">
+                 <span class="fw-bold text-secondary">Tool:</span>
+                 <a href="https://donz567.github.io/whiteeditor/" target="_blank" 
+                    class="btn btn-outline-dark rounded-pill px-2 py-1">Image Editor</a>
+               </div>`
+            : ""
+        }
     </div>
+    
     <h5 class="mb-2" id="detailTitle">${cardTitle}</h5>
     <div class="mb-3 d-flex flex-wrap gap-1 align-items-center" style="font-size: 0.8rem;">
         <span class="badge bg-primary" id="detailBrand">${brand}</span>
@@ -920,22 +933,51 @@ function showDetail(task) {
         <span class="text-muted">📅 ${dateAssigned}</span>
         ${bcLink !== "#" ? `<a href="${bcLink}" target="_blank" class="text-decoration-none">🔗 BC Link</a>` : ""}
     </div>
-    <div class="d-flex flex-wrap gap-2 mb-2" id="bubbleContainer"></div>
-    <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" autocomplete="off" placeholder="Type to search... (Auto-saves after 2 seconds)">
-    <div id="templateList">${rendered}</div>`;
 
+    <div class="d-flex flex-wrap gap-2 mb-2" id="bubbleContainer"></div>
+
+    <input type="text" class="form-control form-control-sm mb-3" id="templateSearch" autocomplete="off" placeholder="Type to search... (Auto-saves after 2 seconds)">
+    
+    <div id="templateList">${rendered}</div>
+    `;
+
+    // --- LOGIC SETUP ---
     const searchInput = document.getElementById("templateSearch");
-    let debounceTimer; 
+    let debounceTimer; // ⏳ Timer variable
+    
+    // --- FUNCTION TO REFRESH BUBBLES IMMEDIATELY ---
     function refreshBubbles() {
         let recentSearches = JSON.parse(localStorage.getItem("recentSearches") || "[]");
-        recentSearches = recentSearches.filter((item, index, self) => index === self.findIndex((t) => (t.toLowerCase() === item.toLowerCase())));
-        if (recentSearches.length > 15) { recentSearches = recentSearches.slice(0, 15); localStorage.setItem("recentSearches", JSON.stringify(recentSearches)); }
-        if (recentSearches.length === 0) recentSearches = ["Validating", "Analyzing", "Gathering", "Creation", "Admin"];
-        const bubblesHtml = recentSearches.map(term => `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill search-bubble mb-1" style="font-size: 0.75rem;">${term}</button>`).join(" ");
+        
+        // Clean Duplicates
+        recentSearches = recentSearches.filter((item, index, self) =>
+            index === self.findIndex((t) => (t.toLowerCase() === item.toLowerCase()))
+        );
+
+        // Limit to 15
+        if (recentSearches.length > 15) {
+            recentSearches = recentSearches.slice(0, 15);
+            localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
+        }
+
+        if (recentSearches.length === 0) {
+            recentSearches = ["Validating", "Analyzing", "Gathering", "Creation", "Admin"];
+        }
+
+        const bubblesHtml = recentSearches.map(term => 
+            `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill search-bubble mb-1" style="font-size: 0.75rem;">${term}</button>`
+        ).join(" ");
+
         const container = document.getElementById("bubbleContainer");
         container.innerHTML = bubblesHtml;
+
+        // Re-attach listeners to new bubbles
         container.querySelectorAll(".search-bubble").forEach(btn => {
-            btn.addEventListener("click", () => { const val = btn.textContent; searchInput.value = val; performSearch(val); });
+            btn.addEventListener("click", () => {
+                const val = btn.textContent;
+                searchInput.value = val;
+                performSearch(val);
+            });
         });
     }
 
@@ -954,28 +996,48 @@ function showDetail(task) {
         });
     }
 
+    // 🔥 MODIFIED LISTENER: Search Instantly + Save after 2 Seconds
     searchInput.addEventListener("input", (e) => {
         const val = e.target.value;
+        
+        // 1. Filter the list immediately
         performSearch(val);
+
+        // 2. Clear the previous timer (reset the countdown)
         clearTimeout(debounceTimer);
+
+        // 3. Start a new 2-second countdown
         debounceTimer = setTimeout(() => {
             const trimmedVal = val.trim();
             if (trimmedVal.length > 2) {
+                // Save logic
                 let history = JSON.parse(localStorage.getItem("recentSearches") || "[]");
                 history = history.filter(h => h.toLowerCase() !== trimmedVal.toLowerCase());
                 history.unshift(trimmedVal);
+                
                 if (history.length > 15) history = history.slice(0, 15);
+                
                 localStorage.setItem("recentSearches", JSON.stringify(history));
+                
+                // Refresh UI immediately
                 refreshBubbles();
             }
-        }, 2000);
+        }, 2000); // 2000ms = 2 seconds
     });
 
+    // Initial Load of bubbles
     refreshBubbles();
+
     const titleEl = detailEl.querySelector("#detailTitle");
-    titleEl.addEventListener("click", () => { navigator.clipboard.writeText(titleEl.textContent.trim()).then(() => showCopied(titleEl)); });
+    titleEl.addEventListener("click", () => {
+        navigator.clipboard.writeText(titleEl.textContent.trim()).then(() => showCopied(titleEl));
+    });
+
     detailEl.querySelectorAll(".task-item").forEach(item => {
-        item.addEventListener("click", e => { e.stopPropagation(); navigator.clipboard.writeText(item.querySelector("span").innerText).then(() => showCopied(item)); });
+        item.addEventListener("click", e => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(item.querySelector("span").innerText).then(() => showCopied(item));
+        });
     });
 
     function showCopied(element) {
@@ -996,25 +1058,46 @@ function showDetail(task) {
         filterBarEl.style.display = "flex";
         detailEl.style.display = "none";
         aboutEl.style.display = "none";
+        
+        // Restore scroll position
         window.scrollTo({ top: lastScrollPosition, behavior: 'auto' });
     });
+
     checkLogToggle();
 }
 
+// --- FIXED TOGGLE LOGIC (Works Past 12 AM) ---
 function toggleLog(toggleEl) {
   const taskTitle = document.getElementById("detailTitle")?.textContent?.trim() || "Unknown Task";
   const brand = document.getElementById("detailBrand")?.textContent?.trim() || "Unknown Brand";
-  const subTask = document.querySelector("#taskDetail .label-subtask-text")?.textContent?.trim() || "N/A";
+  const subTask = document
+  .querySelector("#taskDetail .label-subtask-text")
+  ?.textContent?.trim() || "N/A";
+
   const now = new Date();
   const hour = now.getHours();
   const workDate = new Date();
-  if (hour < 12) workDate.setDate(workDate.getDate() - 1);
+
+  // FIX: Shift date logic. If it is between 12 AM (0) and 12 PM (12), 
+  // we count it as the previous calendar day's shift.
+  // This ensures late night work (1am, 2am) attaches to yesterday's log.
+  if (hour < 12) { 
+      workDate.setDate(workDate.getDate() - 1);
+  }
   const dateStr = workDate.toISOString().split("T")[0];
+
   let logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+
   if (toggleEl.checked) {
     const already = logs.some(l => l.date === dateStr && l.task === taskTitle && l.brand === brand);
     if (!already) {
-      logs.push({ date: dateStr, task: taskTitle, brand: brand, subtask: subTask, timestamp: now.toISOString() });
+      logs.push({
+        date: dateStr,
+        task: taskTitle,
+        brand: brand,
+        subtask: subTask,
+        timestamp: now.toISOString(),
+      });
       localStorage.setItem("taskLogs", JSON.stringify(logs));
       showBanner(`Logged "${taskTitle}" for ${dateStr}`, "info");
     }
@@ -1025,63 +1108,185 @@ function toggleLog(toggleEl) {
   }
 }
 
+// --- FIXED CHECK LOGIC (Always Active) ---
 function checkLogToggle() {
   const toggle = document.getElementById("logToggle");
   if (!toggle) return;
+
   const taskTitle = document.getElementById("detailTitle")?.textContent?.trim() || "";
   const brand = document.getElementById("detailBrand")?.textContent?.trim() || "";
+
   const now = new Date();
   const hour = now.getHours();
   const workDate = new Date();
-  if (hour < 12) workDate.setDate(workDate.getDate() - 1);
+  
+  // FIX: Apply same Shift Logic to reading the state
+  if (hour < 12) { 
+      workDate.setDate(workDate.getDate() - 1);
+  }
   const dateStr = workDate.toISOString().split("T")[0];
+
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
   const already = logs.some(l => l.date === dateStr && l.task === taskTitle && l.brand === brand);
+
+  // FIX: Removed the "Disable" block. The toggle is always active.
   toggle.checked = already;
   const label = document.querySelector('.fw-bold.text-secondary');
-  if (toggle.checked) { label.style.color = '#0d6efd'; label.style.textShadow = '0 0 8px rgba(13,110,253,0.6)'; } 
-  else { label.style.color = '#6c757d'; label.style.textShadow = 'none'; }
+  
+  if (toggle.checked) {
+    label.style.color = '#0d6efd';
+    label.style.textShadow = '0 0 8px rgba(13,110,253,0.6)';
+  } else {
+    label.style.color = '#6c757d';
+    label.style.textShadow = 'none';
+  }
+  toggle.disabled = false; // Always enabled
 }
 
+// Clean up logs for days older than yesterday after 1 PM (13:00)
 (function cleanOldLogs() {
   const now = new Date();
   const hour = now.getHours();
+  
   if (hour >= 13) {
     let logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
-    const todayStr = new Date().toISOString().split("T")[0];
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+    
+    // If it's afternoon, we assume the previous "night shift" is over.
+    // We only keep logs where the date string matches today's actual calendar date.
     logs = logs.filter(l => l.date === todayStr);
     localStorage.setItem("taskLogs", JSON.stringify(logs));
   }
 })();
 
+document.getElementById("viewLogsBtn")?.addEventListener("click", showLogs);
+
+// Function to show logs in modal with status controls
+// ✅ Replace all of your old showLogs() + updateLogStatus() with this
 function showLogs() {
-  const container = document.getElementById("logsTableContainer");
+  const logsTableContainer = document.getElementById("logsTableContainer");
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
-  if (logs.length === 0) { container.innerHTML = `<p class="text-center text-muted mb-0">No logs recorded yet.</p>`; return; }
-  let html = `<table class="table table-striped align-middle"><thead class="table-light"><tr><th>Date</th><th>Brand</th><th>Task</th><th>Task Name</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
+
+  if (!Array.isArray(logs) || logs.length === 0) {
+    logsTableContainer.innerHTML = `<p class="text-center text-muted mb-0">No logs recorded yet.</p>`;
+    return;
+  }
+
+  let html = `
+    <table class="table table-striped align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Brand</th>
+          <th>Task</th> <th>Task Name</th> <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
   logs.forEach((log, index) => {
     const currentStatus = log.status || "";
-    const isCustom = currentStatus && !["Completed", "Ongoing"].includes(currentStatus);
-    html += `<tr><td>${log.date}</td><td>${log.brand}</td><td>${log.subtask}</td><td>${log.task}</td><td>${log.status || "N/A"}</td><td>
+    const isCustom =
+      currentStatus &&
+      !["Completed", "Ongoing"].includes(currentStatus);
+
+    html += `
+      <tr>
+        <td>${log.date || "N/A"}</td>
+        <td>${log.brand || "N/A"}</td>
+        <td>${log.subtask || "N/A"}</td>
+        <td>${log.task || "N/A"}</td>
+        <td>${log.status || "N/A"}</td>
+        <td>
           <div class="d-flex flex-wrap gap-2 align-items-center">
-            <button class="btn btn-sm btn-success" onclick="updateLogStatus(${index}, 'Completed')">Completed</button>
-            <button class="btn btn-sm btn-warning" onclick="updateLogStatus(${index}, 'Ongoing')">Ongoing</button>
-            <input type="text" class="form-control form-control-sm w-auto" id="customInput-${index}" placeholder="Custom..." value="${isCustom ? currentStatus : ''}" oninput="toggleSubmitButton(${index})">
-            <button id="submitBtn-${index}" class="btn btn-sm btn-primary" style="display:${isCustom ? 'inline-block' : 'none'}" onclick="submitCustomStatus(${index})">Submit</button>
-          </div></td></tr>`;
+            <button type="button" class="btn btn-sm btn-success" onclick="updateLogStatus(${index}, 'Completed')">Completed</button>
+            <button type="button" class="btn btn-sm btn-warning" onclick="updateLogStatus(${index}, 'Ongoing')">Ongoing</button>
+            <div class="d-flex align-items-center flex-grow-1">
+              <input 
+                type="text" 
+                class="form-control form-control-sm me-2" 
+                id="customInput-${index}" 
+                placeholder="Custom status..."
+                value="${isCustom ? currentStatus : ''}"
+                oninput="toggleSubmitButton(${index})"
+              >
+              <button 
+                id="submitBtn-${index}" 
+                class="btn btn-sm btn-primary" 
+                style="display:${isCustom ? 'inline-block' : 'none'}"
+                onclick="submitCustomStatus(${index})"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
   });
-  container.innerHTML = html + "</tbody></table>";
+
+  html += "</tbody></table>";
+  logsTableContainer.innerHTML = html;
 }
 
-function toggleSubmitButton(i) { const input = document.getElementById(`customInput-${i}`); document.getElementById(`submitBtn-${i}`).style.display = input.value.trim() ? "inline-block" : "none"; }
-function submitCustomStatus(i) { const logs = JSON.parse(localStorage.getItem("taskLogs")); logs[i].status = document.getElementById(`customInput-${i}`).value.trim(); localStorage.setItem("taskLogs", JSON.stringify(logs)); showLogs(); }
-function updateLogStatus(i, s) { const logs = JSON.parse(localStorage.getItem("taskLogs")); logs[i].status = s; localStorage.setItem("taskLogs", JSON.stringify(logs)); showLogs(); }
+// ✅ Show/Hide Submit button dynamically
+function toggleSubmitButton(index) {
+  const input = document.getElementById(`customInput-${index}`);
+  const btn = document.getElementById(`submitBtn-${index}`);
+  btn.style.display = input.value.trim() ? "inline-block" : "none";
+}
 
-function showBanner(m, t = "info") {
-  const b = document.createElement("div");
-  b.className = `alert alert-${t} position-fixed top-0 start-50 translate-middle-x shadow`;
-  b.style.zIndex = 3000; b.style.marginTop = "10px"; b.innerText = m;
-  document.body.appendChild(b); setTimeout(() => b.remove(), 3000);
+// ✅ Save a custom typed status
+function submitCustomStatus(index) {
+  const input = document.getElementById(`customInput-${index}`);
+  const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+
+  if (!logs[index]) return;
+  logs[index].status = input.value.trim();
+  localStorage.setItem("taskLogs", JSON.stringify(logs));
+
+  showBanner("Custom status saved!", "success");
+  showLogs();
+}
+
+// ✅ For buttons (Completed / Ongoing)
+function updateLogStatus(index, newStatus) {
+  const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+  if (!logs[index]) return;
+
+  logs[index].status = newStatus;
+  localStorage.setItem("taskLogs", JSON.stringify(logs));
+
+  showBanner(`Marked as ${newStatus}!`, newStatus === "Completed" ? "success" : "warning");
+  showLogs();
+}
+
+// ✅ Simple feedback banner
+function showBanner(message, type = "info") {
+  const banner = document.createElement("div");
+  banner.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x shadow`;
+  banner.style.zIndex = 3000;
+  banner.style.marginTop = "10px";
+  banner.innerText = message;
+  document.body.appendChild(banner);
+  setTimeout(() => banner.remove(), 3000);
+}
+
+// ✅ Event to show modal and load logs
+document.getElementById("viewLogsBtn").addEventListener("click", () => {
+  showLogs();
+  const modal = new bootstrap.Modal(document.getElementById("logsModal"));
+  modal.show();
+});
+
+function statusClass(status){
+    if(status==="completed") return "status-completed";
+    if(status==="ongoing") return "status-ongoing";
+    if(status==="cancelled") return "status-cancelled";
+    if(status==="assigned") return "status-assigned";
+    return "";
 }
 
 function renderPagination(totalPages){
@@ -1091,35 +1296,115 @@ function renderPagination(totalPages){
     pagination.innerHTML += `<li class="page-item ${currentPage===1?'disabled':''}"><a class="page-link" href="#" data-page="${currentPage-1}">Prev</a></li>`;
     let startPage = Math.max(1,currentPage-2);
     let endPage = Math.min(totalPages,currentPage+2);
-    for(let i=startPage;i<=endPage;i++) pagination.innerHTML += `<li class="page-item ${i===currentPage?'active':''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+    if(currentPage<=3) endPage=Math.min(5,totalPages);
+    if(currentPage>=totalPages-2) startPage=Math.max(totalPages-4,1);
+    for(let i=startPage;i<=endPage;i++){
+        pagination.innerHTML += `<li class="page-item ${i===currentPage?'active':''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+    }
     pagination.innerHTML += `<li class="page-item ${currentPage===totalPages?'disabled':''}"><a class="page-link" href="#" data-page="${currentPage+1}">Next</a></li>`;
-    document.querySelectorAll("#pagination .page-link").forEach(link=>{ link.addEventListener("click",(e)=>{ e.preventDefault(); const page=parseInt(link.getAttribute("data-page")); if(page>=1 && page<=totalPages){ currentPage=page; filterTasks(); } }); });
+    document.querySelectorAll("#pagination .page-link").forEach(link=>{
+        link.addEventListener("click",(e)=>{
+            e.preventDefault();
+            const page=parseInt(link.getAttribute("data-page"));
+            if(page>=1 && page<=totalPages){ currentPage=page; filterTasks(); }
+        });
+    });
 }
 
+function showBanner(message) {
+  const banner = document.getElementById("banner");
+  banner.textContent = message;
+  banner.classList.remove("d-none");
+  setTimeout(() => banner.classList.add("d-none"), 3000);
+}
+
+// === GENERATE WORK LOG (UPDATED: DATE IN FIRST ROW) ===
 function generateWorkLog() {
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
-  if (logs.length === 0) return;
-  const reportDate = logs[0].date;
+  if (logs.length === 0) {
+    showBanner("No logs to generate.", "warning");
+    return;
+  }
+
+  // 1. Get the Date (from the first log or default to today)
+  const reportDate = logs[0].date || new Date().toISOString().split("T")[0];
+
+  // Helper for Proper Case
+  const toProperCase = (str) => {
+    if (!str) return "";
+    if (str.includes("/")) return str;
+    return str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase());
+  };
+
+  // CSV HEADERS (No "Date" here, it goes in Row 1)
   const headers = ["Brand", "Task", "Task Name", "Status"];
-  const rows = logs.map(l => `"${l.brand}","${l.subtask}","${l.task}","${l.status || ''}"`);
+
+  // DATA ROWS
+  const rows = logs.map(l => {
+    // Note: l.date is skipped here
+    const brand = toProperCase(normalizeBrandName(l.brand));
+    const taskCategory = l.subtask || ""; 
+    const taskTitle = l.task || "";       
+    const status = l.status || "";
+
+    // Escape quotes for CSV
+    const escape = (txt) => `"${txt.replace(/"/g, '""')}"`;
+
+    return `${escape(brand)},${escape(taskCategory)},${escape(taskTitle)},${escape(status)}`;
+  });
+
+  // CONSTRUCT CSV CONTENT
+  // Row 1: Date: 2023-XX-XX
+  // Row 2: Headers
+  // Row 3+: Data
   const csvContent = `Date: ${reportDate}\n` + [headers.join(","), ...rows].join("\n");
+
+  // Download Logic
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
-  link.setAttribute("href", URL.createObjectURL(blob));
-  link.setAttribute("download", `DailyReport_${reportDate}.csv`);
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+
+  // Filename
+  const estDate = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York" }).replace(/\//g, "-");
+  link.setAttribute("download", `DailyReport_${estDate}.csv`);
+  document.body.appendChild(link);
   link.click();
+  document.body.removeChild(link);
+
+  // Clear logs after generation
   localStorage.removeItem("taskLogs");
+  showBanner("Work log generated and cleared.", "success");
+
+  // Refresh UI
   checkLogToggle(); 
 }
 
+// Attach to button
 document.getElementById("generateLogBtn")?.addEventListener("click", generateWorkLog);
-function updateLastUpdated(){ document.getElementById("lastUpdated").innerText=`Updated: ${new Date().toLocaleTimeString()}`; }
+
+
+function updateLastUpdated(){
+    const now=new Date();
+    document.getElementById("lastUpdated").innerText=`Updated: ${now.toLocaleTimeString()}`;
+}
+
 function logout(){ localStorage.removeItem("agent"); location.reload(); }
-document.addEventListener("visibilitychange", () => { if (!document.hidden) { newTaskCount = 0; updateFavicon(0); } });
-function updateTotalTasks(f=null){
-    const loginName = localStorage.getItem("agent"); if(!loginName) return;
-    const data = f || tasks.filter(t => t["Agent Assigned"] === loginName);
-    const summary = document.getElementById("totalTasksSummary"); if(summary) summary.innerHTML = `<div>Total Tasks: ${data.length}</div>`;
+
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+        newTaskCount = 0;
+        updateFavicon(0);
+    }
+});
+
+function updateTotalTasks(filteredTasks=null){
+    const el = document.getElementById("totalTasksSummary");
+    const loginName = localStorage.getItem("agent");
+    if(!loginName) return;
+
+    const data = filteredTasks || tasks.filter(t => t["Agent Assigned"] === loginName);
+    el.innerHTML = `<div>Total Tasks: ${data.length}</div>`;
 }
 </script>
 </body>
