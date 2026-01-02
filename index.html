@@ -451,6 +451,8 @@ function normalizeBrandName(brand) {
   // Convert to consistent case for comparison
   const b = brand.trim().toLowerCase();
   if (b === "carolina/double h boots") return "Carolina/Double H";
+  if (b === "vertx_2p") return "Vertx";
+ 
   return brand;
 }
 function requestNotificationPermission() {
