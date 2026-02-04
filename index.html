@@ -452,6 +452,11 @@ function normalizeBrandName(brand) {
   const b = brand.trim().toLowerCase();
   if (b === "carolina/double h boots") return "Carolina/Double H";
   if (b === "vertx_2p") return "Vertx";
+  if (b === "evenflo - 2p") return "Evenflo";
+  if (b === "tru-spec-2p") return "TRUE-SPEC";
+  if (b === "wonderfold-2p") return "Wonderfold";
+  if (b === "Cybex (3P)") return "Cybex";
+  if (b === "WONDERFOLD-3P") return "WONDERFOLD";
  
   return brand;
 }
