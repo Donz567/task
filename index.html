@@ -145,7 +145,7 @@ body {
 #filterBar { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem; }
 .search-container { width: 100%; }
 
-/* --- NEW FILTER BUTTONS --- */
+/* --- FILTER BUTTONS --- */
 #statusFilters {
     display: flex;
     flex-wrap: wrap;
@@ -171,6 +171,18 @@ body {
     color: #fff;
     border-color: #212529;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* --- FILTER STATS TEXT --- */
+#filterStats {
+    color: #0d6efd;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: rgba(13, 110, 253, 0.05);
+    padding: 5px 10px;
+    border-radius: 8px;
+    display: inline-block;
+    align-self: flex-start;
 }
 
 #taskList { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 1rem; }
@@ -354,6 +366,7 @@ body {
     </div>
     <div id="statusFilters">
         </div>
+    <div id="filterStats" class="d-none"></div>
   </div>
   
   <div id="taskList" class="mb-4"></div>
@@ -365,7 +378,7 @@ body {
         <img src="https://cdn-icons-png.flaticon.com/512/906/906334.png" alt="Task Icon" style="width: 80px; margin-bottom: 20px;">
         <h1 class="display-6 fw-bold text-dark mb-3">Exclusive Task Manager</h1>
         <p class="text-muted fs-5">Efficiency meets clarity. Your ultimate tool for tracking, logging, and managing daily operations.</p>
-        <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mt-2">✨ Version 2.1.0</div>
+        <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mt-2">✨ Version 2.1.1</div>
       </div>
       
       <div class="row justify-content-center g-4 text-center">
@@ -427,7 +440,7 @@ let currentPage = 1;
 let lastTaskCount = 0;  
 let newTaskCount = 0;     
 let lastScrollPosition = 0; 
-// 🆕 Filter State
+// Filter State
 let selectedStatuses = new Set(['all']);
 
 const tasksPerPage = 20;
@@ -638,7 +651,7 @@ function setupLogin() {
     }
 }
 
-// --- 🆕 MULTI-SELECT UI ---
+// --- MULTI-SELECT UI ---
 function setupStatusFilters(){
     const container = document.getElementById("statusFilters");
     // Explicit list order
@@ -709,19 +722,55 @@ function filterTasks(isRefresh=false){
         if (!selectedStatuses.has('all')) {
             filtered = filtered.filter(t => {
                 const s = (t["Status"]||"").toLowerCase();
-                // Check if the task status is in the selected set
                 return selectedStatuses.has(s);
             });
         }
         
         filtered = filtered.filter(t => Object.values(t).some(val => String(val).toLowerCase().includes(search)));
         
+        // 🆕 UPDATE STATS TEXT BEFORE RENDERING
+        updateFilterStats(filtered);
+        
         renderTasks(filtered, isRefresh);
-        updateStatusSummary(); // Refresh counts
+        updateStatusSummary(); // Refresh overall counts
     });
 }
 
-// --- UPDATED SUMMARY ---
+// --- 🆕 DYNAMIC FILTER STATS ---
+function updateFilterStats(filteredTasks) {
+    const statsEl = document.getElementById("filterStats");
+    
+    // Case 1: All tasks
+    if (selectedStatuses.has('all')) {
+        statsEl.innerHTML = `Showing: All Tasks (${filteredTasks.length})`;
+        statsEl.classList.remove("d-none");
+        return;
+    }
+
+    // Case 2: Specific Filters (Count only visible tasks for active filters)
+    const counts = {};
+    filteredTasks.forEach(t => {
+        const s = (t["Status"] || "").toLowerCase();
+        counts[s] = (counts[s] || 0) + 1;
+    });
+
+    const parts = [];
+    selectedStatuses.forEach(status => {
+        const count = counts[status] || 0;
+        // Capitalize 
+        const label = status.charAt(0).toUpperCase() + status.slice(1);
+        parts.push(`${label} - ${count}`);
+    });
+
+    if (parts.length > 0) {
+        statsEl.innerHTML = "Showing: " + parts.join(" / ");
+        statsEl.classList.remove("d-none");
+    } else {
+        statsEl.classList.add("d-none");
+    }
+}
+
+// --- OVERALL SUMMARY ---
 function updateStatusSummary() {
     const summaryEl = document.getElementById("statusSummary");
     const loginName = localStorage.getItem("agent");
@@ -850,7 +899,7 @@ function renderTasks(taskArray){
     renderPagination(totalPages);
 }
 
-// --- UPDATED ICONS (Added Pending & WIP) ---
+// --- ICONS ---
 function getBackgroundIcon(status) {
   switch(status) {
     case "ongoing": 
