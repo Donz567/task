@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,7 @@ body {
     color: #1a1a1a;
     font-family: 'Segoe UI', Tahoma, sans-serif;
     padding-bottom: 120px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* --- GLASS EFFECT STYLES --- */
@@ -55,7 +56,6 @@ body {
 }
 
 .navbar { background: transparent; }
-
 
 /* --- FLOATING CONTAINER --- */
 .floating-actions {
@@ -118,14 +118,46 @@ body {
     font-weight: 600;
     display: inline-block;
 }
+/* --- WORKING INDICATOR STYLES --- */
+.task-working {
+    border: 2px solid #0d6efd;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.15) !important;
+}
+.working-indicator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #e7f1ff;
+    color: #0d6efd;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 10;
+}
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #0d6efd;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(13, 110, 253, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+}
 
 /* --- STATUS COLORS --- */
-.status-completed { background: #bcddc9; color: #1a1a1a; } /* Green */
-.status-ongoing { background: #d9eafd; color: #1a1a1a; }   /* Blue */
-.status-cancelled { background: #fdd9d9; color: #1a1a1a; } /* Red */
-.status-assigned { background: #f5f5d9; color: #1a1a1a; }  /* Beige */
-.status-pending { background: #fff3cd; color: #856404; }    /* Yellow */
-.status-wip { background: #e0cffc; color: #2e1065; }        /* Purple (WIP) */
+.status-completed { background: #bcddc9; color: #1a1a1a; }
+.status-ongoing { background: #d9eafd; color: #1a1a1a; }
+.status-cancelled { background: #fdd9d9; color: #1a1a1a; }
+.status-assigned { background: #f5f5d9; color: #1a1a1a; }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-wip { background: #e0cffc; color: #2e1065; }
 
 .bc-btn {
     display: block;
@@ -143,7 +175,7 @@ body {
 .bc-btn:hover { background: #35373b; color: white; text-decoration: none; }
 
 #filterBar { display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem; }
-.search-container { width: 100%; }
+.search-container { width: 100%; display: flex; gap: 0.5rem; }
 
 /* --- FILTER BUTTONS --- */
 #statusFilters {
@@ -284,10 +316,8 @@ body {
 }
 .toggle-switch input:checked + .slider::before { transform: translateX(34px); }
 
-/* Detail Title Cursor */
 #detailTitle { cursor: pointer; position: relative; }
 
-/* Sticky back + toggle bar */
 .detail-header {
     position: sticky;
     top: 70px;
@@ -296,7 +326,6 @@ body {
     padding: 10px 0;
 }
 
-/* Feature Icon Box for About Page */
 .feature-icon-box {
     width: 60px;
     height: 60px;
@@ -312,11 +341,39 @@ body {
 #templateList{
   cursor: pointer;
 }
+/* --- CURSOR PARTICLES --- */
+#cursorCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* Lets you click through the canvas */
+    z-index: 9999; /* Keeps it on top of everything */
+}
+/* --- DARK MODE OVERRIDES --- */
+[data-bs-theme="dark"] body { background-color: #121212; color: #e0e0e0; }
+[data-bs-theme="dark"] .glass-nav { background: rgba(33, 37, 41, 0.85) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+[data-bs-theme="dark"] .task-card { background-color: #1e1e1e; border: 1px solid #333; color: #eee; }
+[data-bs-theme="dark"] .task-working { border-color: #0d6efd; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3) !important; }
+[data-bs-theme="dark"] .working-indicator { background: #0d6efd; color: #fff; }
+[data-bs-theme="dark"] .status-summary div { background: #2d2d2d; }
+[data-bs-theme="dark"] .filter-btn { background: #2d2d2d; color: #ccc; border-color: #444; }
+[data-bs-theme="dark"] .filter-btn.active { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+[data-bs-theme="dark"] #taskDetail, [data-bs-theme="dark"] #aboutSection, [data-bs-theme="dark"] .detail-header { background: #1e1e1e; color: #eee; }
+[data-bs-theme="dark"] .status-completed { background: #198754; color: #fff; }
+[data-bs-theme="dark"] .status-ongoing { background: #0d6efd; color: #fff; }
+[data-bs-theme="dark"] .status-cancelled { background: #dc3545; color: #fff; }
+[data-bs-theme="dark"] .status-assigned { background: #6c757d; color: #fff; }
+[data-bs-theme="dark"] .status-pending { background: #ffc107; color: #000; }
+[data-bs-theme="dark"] .status-wip { background: #6f42c1; color: #fff; }
+[data-bs-theme="dark"] .label-task-text, [data-bs-theme="dark"] .label-subtask-text, [data-bs-theme="dark"] .label-brand-text { color: #000; }
+[data-bs-theme="dark"] .task-item { background-color: #2d2d2d !important; color: #eee; border-color: #444 !important; }
 </style>
 </head>
 <body>
-  <div id="banner" class="alert alert-success text-center position-fixed top-0 start-50 translate-middle-x w-50 d-none" role="alert" style="z-index:1055;">
-</div>
+<canvas id="cursorCanvas"></canvas>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2055" id="toastContainer"></div>
 
 <nav class="navbar navbar-expand-lg sticky-top p-3 glass-nav">
   <div class="container-fluid">
@@ -328,8 +385,12 @@ body {
       
       <div id="loginDropdownContainer"></div>
       <button class="btn btn-outline-danger btn-sm" id="logoutBtn" style="display:none;">Logout</button>
-      <small class="text-muted ms-3" id="lastUpdated"></small>
       
+      <button class="btn btn-sm btn-outline-secondary" id="darkModeToggle" title="Toggle Dark Mode">
+          <i class="bi bi-moon"></i>
+      </button>
+
+      <small class="text-muted ms-3" id="lastUpdated"></small>
     </div>
   </div>
 </nav>
@@ -345,6 +406,8 @@ body {
       </div>
 
       <div class="modal-body p-4">
+        <div id="logStatsContainer" class="row mb-4 text-center"></div>
+
         <div id="logsTableContainer" class="table-responsive">
           <p class="text-center text-muted mb-0">No logs recorded yet.</p>
         </div>
@@ -363,6 +426,13 @@ body {
   <div id="filterBar">
     <div class="search-container">
         <input type="text" id="searchBar" class="form-control" placeholder="Search tasks by name, brand, or status...">
+        
+        <select id="sortSelect" class="form-select w-auto fw-bold text-secondary">
+            <option value="newest">Sort: Newest First</option>
+            <option value="oldest">Sort: Oldest First</option>
+            <option value="brand">Sort: Brand (A-Z)</option>
+            <option value="status">Sort: Status</option>
+        </select>
     </div>
     <div id="statusFilters">
         </div>
@@ -376,9 +446,9 @@ body {
   <div id="aboutSection">
       <div class="mb-5">
         <img src="https://cdn-icons-png.flaticon.com/512/906/906334.png" alt="Task Icon" style="width: 80px; margin-bottom: 20px;">
-        <h1 class="display-6 fw-bold text-dark mb-3">Exclusive Task Manager</h1>
+        <h1 class="display-6 fw-bold mb-3">Exclusive Task Manager</h1>
         <p class="text-muted fs-5">Efficiency meets clarity. Your ultimate tool for tracking, logging, and managing daily operations.</p>
-        <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mt-2">✨ Version 2.1.1</div>
+        <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mt-2">✨ Version 2.2.0</div>
       </div>
       
       <div class="row justify-content-center g-4 text-center">
@@ -440,8 +510,10 @@ let currentPage = 1;
 let lastTaskCount = 0;  
 let newTaskCount = 0;     
 let lastScrollPosition = 0; 
-// Filter State
+
+// Filter & Sort State
 let selectedStatuses = new Set(['all']);
+let currentSort = "newest";
 
 const tasksPerPage = 20;
 const agentMap = {
@@ -460,15 +532,44 @@ const agentMap = {
     "Adriana, Jhonmar": "Jhonmar",
     "Adriana, Jade": "Jade",
 };
+
 document.addEventListener("DOMContentLoaded", () => {
     initApp();
+    initDarkMode();
+    
     document.getElementById("searchBar").addEventListener("input", () => { currentPage = 1; filterTasks(); });
     document.getElementById("logoutBtn").addEventListener("click", logout);
     document.getElementById("aboutBtn").addEventListener("click", showAbout);
+    
+    // Sort Dropdown Listener
+    document.getElementById("sortSelect").addEventListener("change", (e) => {
+        currentSort = e.target.value;
+        currentPage = 1;
+        filterTasks();
+    });
+
     setInterval(() => { fetchTasks().then(() => filterTasks(true)); }, 30000);
 });
 
-// Function to handle showing the About Page
+// --- DARK MODE LOGIC ---
+function initDarkMode() {
+    const darkModeBtn = document.getElementById("darkModeToggle");
+    const savedTheme = localStorage.getItem("theme") || "light";
+    
+    function applyTheme(isDark) {
+        document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
+        darkModeBtn.innerHTML = isDark ? '<i class="bi bi-sun"></i>' : '<i class="bi bi-moon"></i>';
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+    }
+    
+    applyTheme(savedTheme === "dark");
+
+    darkModeBtn.addEventListener("click", () => {
+        const isCurrentlyDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        applyTheme(!isCurrentlyDark);
+    });
+}
+
 function showAbout() {
     document.getElementById("taskList").style.display = "none";
     document.getElementById("pagination").style.display = "none";
@@ -478,7 +579,6 @@ function showAbout() {
     window.scrollTo(0, 0); 
 }
 
-// Function to handle returning Home
 function showHome() {
     document.getElementById("taskList").style.display = "grid";
     document.getElementById("pagination").style.display = "flex";
@@ -493,8 +593,9 @@ async function initApp() {
     setupStatusFilters();
     filterTasks();
     requestNotificationPermission();
-  setTimeout(notifyDailyOngoingTasks, 2000); 
+    setTimeout(notifyDailyOngoingTasks, 2000); 
 }
+
 function normalizeBrandName(brand) {
   if (!brand) return brand;
   const b = brand.trim().toLowerCase();
@@ -507,6 +608,7 @@ function normalizeBrandName(brand) {
   if (b === "WONDERFOLD-3P") return "WONDERFOLD";
   return brand;
 }
+
 function requestNotificationPermission() {
   if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
@@ -519,6 +621,7 @@ function getOngoingTasks() {
   return tasks.filter(t => t["Agent Assigned"] === loginName && 
                           (t["Status"]||"").toLowerCase() === "ongoing");
 }
+
 function notifyDailyOngoingTasks() {
   const ongoing = getOngoingTasks();
   if (ongoing.length === 0) return;
@@ -580,6 +683,7 @@ function formatDate(date) {
     const d = String(date.getDate()).padStart(2,'0');
     return `${y}-${m}-${d}`;
 }
+
 async function fetchTasks() {
     try {
         const res = await fetch(SHEET_URL);
@@ -627,7 +731,6 @@ async function fetchTasks() {
 }
 
 function setupLogin() {
-    // Agent Map already defined at top scope
     const loginName = localStorage.getItem("agent");
     if(loginName){
         document.getElementById("logoutBtn").style.display="inline-block";
@@ -651,10 +754,8 @@ function setupLogin() {
     }
 }
 
-// --- MULTI-SELECT UI ---
 function setupStatusFilters(){
     const container = document.getElementById("statusFilters");
-    // Explicit list order
     const options = [
         { id: "all", label: "All Status" },
         { id: "ongoing", label: "Ongoing" },
@@ -686,14 +787,13 @@ function toggleFilter(val) {
             selectedStatuses.add(val);
         }
         
-        // If nothing selected, revert to all
         if (selectedStatuses.size === 0) {
             selectedStatuses.add('all');
         }
     }
     
     updateFilterUI();
-    currentPage = 1; // Reset pagination
+    currentPage = 1; 
     filterTasks();
 }
 
@@ -708,7 +808,6 @@ function updateFilterUI() {
     });
 }
 
-// --- UPDATED FILTERING LOGIC ---
 function filterTasks(isRefresh=false){
     const loginName = localStorage.getItem("agent");
     if(!loginName) return;
@@ -718,7 +817,6 @@ function filterTasks(isRefresh=false){
         
         let filtered = tasks.filter(t => t["Agent Assigned"]===loginName);
         
-        // Multi-Filter Logic
         if (!selectedStatuses.has('all')) {
             filtered = filtered.filter(t => {
                 const s = (t["Status"]||"").toLowerCase();
@@ -728,26 +826,31 @@ function filterTasks(isRefresh=false){
         
         filtered = filtered.filter(t => Object.values(t).some(val => String(val).toLowerCase().includes(search)));
         
-        // 🆕 UPDATE STATS TEXT BEFORE RENDERING
-        updateFilterStats(filtered);
+        // --- NEW: APPLY SORTING ---
+        if (currentSort === "newest") {
+            filtered.sort((a,b) => b._id - a._id);
+        } else if (currentSort === "oldest") {
+            filtered.sort((a,b) => a._id - b._id);
+        } else if (currentSort === "brand") {
+            filtered.sort((a,b) => (a["Brand"]||"").localeCompare(b["Brand"]||""));
+        } else if (currentSort === "status") {
+            filtered.sort((a,b) => (a["Status"]||"").localeCompare(b["Status"]||""));
+        }
         
+        updateFilterStats(filtered);
         renderTasks(filtered, isRefresh);
-        updateStatusSummary(); // Refresh overall counts
+        updateStatusSummary(); 
     });
 }
 
-// --- 🆕 DYNAMIC FILTER STATS ---
 function updateFilterStats(filteredTasks) {
     const statsEl = document.getElementById("filterStats");
-    
-    // Case 1: All tasks
     if (selectedStatuses.has('all')) {
         statsEl.innerHTML = `Showing: All Tasks (${filteredTasks.length})`;
         statsEl.classList.remove("d-none");
         return;
     }
 
-    // Case 2: Specific Filters (Count only visible tasks for active filters)
     const counts = {};
     filteredTasks.forEach(t => {
         const s = (t["Status"] || "").toLowerCase();
@@ -757,7 +860,6 @@ function updateFilterStats(filteredTasks) {
     const parts = [];
     selectedStatuses.forEach(status => {
         const count = counts[status] || 0;
-        // Capitalize 
         const label = status.charAt(0).toUpperCase() + status.slice(1);
         parts.push(`${label} - ${count}`);
     });
@@ -770,21 +872,13 @@ function updateFilterStats(filteredTasks) {
     }
 }
 
-// --- OVERALL SUMMARY ---
 function updateStatusSummary() {
     const summaryEl = document.getElementById("statusSummary");
     const loginName = localStorage.getItem("agent");
     if(!loginName) return;
 
     const data = tasks.filter(t => t["Agent Assigned"] === loginName);
-    const counts = {
-        ongoing:0, 
-        completed:0, 
-        cancelled:0, 
-        assigned:0, 
-        pending:0, 
-        wip:0
-    };
+    const counts = { ongoing:0, completed:0, cancelled:0, assigned:0, pending:0, wip:0 };
     
     data.forEach(t => {
         let s = (t["Status"]||"").toLowerCase();
@@ -835,7 +929,6 @@ function updateFavicon(count) {
   document.head.appendChild(link);
 }
 
-
 function renderTasks(taskArray){
     const taskList = document.getElementById("taskList");
     taskList.innerHTML = ""; 
@@ -844,17 +937,26 @@ function renderTasks(taskArray){
     const start = (currentPage-1)*tasksPerPage;
     const paginated = taskArray.slice(start,start+tasksPerPage);
 
+    const todayStr = new Date().toISOString().split("T")[0];
+    const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
+
     paginated.forEach(t => {
         const status = (t["Status"]||"").toLowerCase();
         const bcLink = t["BC Link"] || "#";
         const brand = normalizeBrandName(t["Brand"]) || "N/A";
+        
+        const checkBrand = normalizeBrandName(t["Brand"] || "nobrand").toLowerCase();
+        const checkTitle = t["Tasks"] || "Untitled";
+        const isWorking = logs.some(l => l.date === todayStr && l.task === checkTitle && l.brand === checkBrand);
 
         const card = document.createElement("div");
-        card.className = "task-card";
+        card.className = `task-card ${isWorking ? 'task-working' : ''}`;
         
         let badgeClass = "status-" + status;
         
         card.innerHTML = `
+                ${isWorking ? `<div class="working-indicator"><div class="pulse-dot"></div> Logged</div>` : ''}
+                
                 <div class="task-title">${t["Tasks"]||"Untitled"}</div>
 
                 <div class="task-info">
@@ -899,7 +1001,6 @@ function renderTasks(taskArray){
     renderPagination(totalPages);
 }
 
-// --- ICONS ---
 function getBackgroundIcon(status) {
   switch(status) {
     case "ongoing": 
@@ -1010,7 +1111,7 @@ function showDetail(task) {
             ? `<div class="d-flex align-items-center gap-2">
                  <span class="fw-bold text-secondary">Tool:</span>
                  <a href="https://donz567.github.io/whiteeditor/" target="_blank" 
-                    class="btn btn-outline-dark rounded-pill px-2 py-1">Image Editor</a>
+                    class="btn btn-outline-primary rounded-pill px-2 py-1">Image Editor</a>
                </div>`
             : ""
         }
@@ -1138,7 +1239,7 @@ function showDetail(task) {
         filterBarEl.style.display = "flex";
         detailEl.style.display = "none";
         aboutEl.style.display = "none";
-        
+        filterTasks();
         window.scrollTo({ top: lastScrollPosition, behavior: 'auto' });
     });
 
@@ -1153,13 +1254,7 @@ function toggleLog(toggleEl) {
   ?.textContent?.trim() || "N/A";
 
   const now = new Date();
-  const hour = now.getHours();
-  const workDate = new Date();
-
-  if (hour < 12) { 
-      workDate.setDate(workDate.getDate() - 1);
-  }
-  const dateStr = workDate.toISOString().split("T")[0];
+  const dateStr = now.toISOString().split("T")[0];
 
   let logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
 
@@ -1174,7 +1269,7 @@ function toggleLog(toggleEl) {
         timestamp: now.toISOString(),
       });
       localStorage.setItem("taskLogs", JSON.stringify(logs));
-      showBanner(`Logged "${taskTitle}" for ${dateStr}`, "info");
+      showBanner(`Logged "${taskTitle}"`, "info");
     }
   } else {
     logs = logs.filter(l => !(l.date === dateStr && l.task === taskTitle && l.brand === brand));
@@ -1191,13 +1286,7 @@ function checkLogToggle() {
   const brand = document.getElementById("detailBrand")?.textContent?.trim() || "";
 
   const now = new Date();
-  const hour = now.getHours();
-  const workDate = new Date();
-  
-  if (hour < 12) { 
-      workDate.setDate(workDate.getDate() - 1);
-  }
-  const dateStr = workDate.toISOString().split("T")[0];
+  const dateStr = now.toISOString().split("T")[0];
 
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
   const already = logs.some(l => l.date === dateStr && l.task === taskTitle && l.brand === brand);
@@ -1233,12 +1322,59 @@ document.getElementById("viewLogsBtn")?.addEventListener("click", showLogs);
 
 function showLogs() {
   const logsTableContainer = document.getElementById("logsTableContainer");
+  const logStatsContainer = document.getElementById("logStatsContainer");
   const logs = JSON.parse(localStorage.getItem("taskLogs") || "[]");
 
   if (!Array.isArray(logs) || logs.length === 0) {
+    logStatsContainer.innerHTML = "";
     logsTableContainer.innerHTML = `<p class="text-center text-muted mb-0">No logs recorded yet.</p>`;
     return;
   }
+
+  // --- NEW: LOG STATISTICS DASHBOARD ---
+  let totalLogs = logs.length;
+  let completedLogs = logs.filter(l => l.status === "Completed").length;
+  let ongoingLogs = logs.filter(l => l.status === "Ongoing").length;
+  
+  let brandCounts = {};
+  let topBrand = "N/A", topCount = 0;
+  logs.forEach(l => {
+      if(l.brand) {
+          brandCounts[l.brand] = (brandCounts[l.brand] || 0) + 1;
+          if(brandCounts[l.brand] > topCount) {
+              topCount = brandCounts[l.brand];
+              topBrand = l.brand;
+          }
+      }
+  });
+
+  logStatsContainer.innerHTML = `
+      <div class="col-md-3 mb-2">
+          <div class="p-3 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded shadow-sm">
+              <h3 class="text-primary mb-0 fw-bold">${totalLogs}</h3>
+              <small class="text-muted fw-bold">Total Logged</small>
+          </div>
+      </div>
+      <div class="col-md-3 mb-2">
+          <div class="p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded shadow-sm">
+              <h3 class="text-success mb-0 fw-bold">${completedLogs}</h3>
+              <small class="text-muted fw-bold">Completed</small>
+          </div>
+      </div>
+      <div class="col-md-3 mb-2">
+          <div class="p-3 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded shadow-sm">
+              <h3 class="text-warning mb-0 fw-bold">${ongoingLogs}</h3>
+              <small class="text-muted fw-bold">Ongoing</small>
+          </div>
+      </div>
+      <div class="col-md-3 mb-2">
+          <div class="p-3 bg-info bg-opacity-10 border border-info border-opacity-25 rounded shadow-sm">
+              <h3 class="text-info mb-0 fw-bold">${topBrand}</h3>
+              <small class="text-muted fw-bold">Top Brand</small>
+          </div>
+      </div>
+  `;
+  // -------------------------------------
 
   let html = `
     <table class="table table-striped align-middle">
@@ -1246,7 +1382,7 @@ function showLogs() {
         <tr>
           <th>Date</th>
           <th>Brand</th>
-          <th>Task</th> <th>Task Name</th> <th>Status</th>
+          <th>Task Category</th> <th>Task Name</th> <th>Status</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -1262,10 +1398,10 @@ function showLogs() {
     html += `
       <tr>
         <td>${log.date || "N/A"}</td>
-        <td>${log.brand || "N/A"}</td>
+        <td><span class="badge bg-secondary">${log.brand || "N/A"}</span></td>
         <td>${log.subtask || "N/A"}</td>
         <td>${log.task || "N/A"}</td>
-        <td>${log.status || "N/A"}</td>
+        <td><span class="badge ${currentStatus === 'Completed' ? 'bg-success' : currentStatus === 'Ongoing' ? 'bg-warning text-dark' : 'bg-info'}">${log.status || "N/A"}</span></td>
         <td>
           <div class="d-flex flex-wrap gap-2 align-items-center">
             <button type="button" class="btn btn-sm btn-success" onclick="updateLogStatus(${index}, 'Completed')">Completed</button>
@@ -1355,13 +1491,39 @@ function renderPagination(totalPages){
     });
 }
 
+// --- NEW: TOAST NOTIFICATIONS ---
 function showBanner(message, type="success") {
-  const banner = document.getElementById("banner");
-  banner.textContent = message;
-  banner.className = `alert alert-${type} text-center position-fixed top-0 start-50 translate-middle-x w-50`;
-  banner.style.zIndex = 3000;
-  banner.classList.remove("d-none");
-  setTimeout(() => banner.classList.add("d-none"), 3000);
+    const toastContainer = document.getElementById("toastContainer");
+    
+    let bgClass = "bg-success text-white";
+    let closeBtnClass = "btn-close-white";
+    
+    if(type === "info") { bgClass = "bg-primary text-white"; }
+    if(type === "warning") { bgClass = "bg-warning text-dark"; closeBtnClass = ""; }
+    if(type === "secondary") { bgClass = "bg-secondary text-white"; }
+
+    const toastEl = document.createElement("div");
+    toastEl.className = `toast align-items-center border-0 ${bgClass} shadow-lg mb-2`;
+    toastEl.setAttribute("role", "alert");
+    toastEl.setAttribute("aria-live", "assertive");
+    toastEl.setAttribute("aria-atomic", "true");
+    
+    toastEl.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body fw-bold">
+          ${message}
+        </div>
+        <button type="button" class="btn-close ${closeBtnClass} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    `;
+    
+    toastContainer.appendChild(toastEl);
+    const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+    toast.show();
+    
+    toastEl.addEventListener('hidden.bs.toast', () => {
+        toastEl.remove();
+    });
 }
 
 function generateWorkLog() {
@@ -1406,9 +1568,15 @@ function generateWorkLog() {
   document.body.removeChild(link);
 
   localStorage.removeItem("taskLogs");
-  showBanner("Work log generated and cleared.", "success");
+  showBanner("Work log generated and cleared!", "success");
 
   checkLogToggle(); 
+  
+  // Close the modal and refresh UI so charts/buttons reset
+  const modalEl = document.getElementById("logsModal");
+  const modalObj = bootstrap.Modal.getInstance(modalEl);
+  if(modalObj) modalObj.hide();
+  filterTasks();
 }
 
 document.getElementById("generateLogBtn")?.addEventListener("click", generateWorkLog);
@@ -1427,6 +1595,96 @@ document.addEventListener("visibilitychange", () => {
         updateFavicon(0);
     }
 });
+
+// ==========================================
+// --- CURSOR PARTICLE EFFECT (OCTAGONS) ---
+// ==========================================
+const canvas = document.getElementById('cursorCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particlesArray = [];
+
+// --- 1. SINGLE COLOR HERE ---
+// Change this hex code to whatever color you prefer! 
+const particleColor = '#0d6efd'; 
+
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+const mouse = { x: undefined, y: undefined };
+
+window.addEventListener('mousemove', (event) => {
+    mouse.x = event.x;
+    mouse.y = event.y;
+    for (let i = 0; i < 2; i++) {
+        particlesArray.push(new Particle());
+    }
+});
+
+class Particle {
+    constructor() {
+        this.x = mouse.x;
+        this.y = mouse.y;
+        // Made them slightly larger (between 2 and 6) so the octagon shape is visible
+        this.size = Math.random() * 4 + 2; 
+        this.speedX = Math.random() * 3 - 1.5; 
+        this.speedY = Math.random() * 3 - 1.5; 
+        this.life = 1; 
+    }
+    
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life -= 0.03; 
+        if (this.size > 0.2) this.size -= 0.1; 
+    }
+    
+    draw() {
+        ctx.fillStyle = particleColor;
+        ctx.globalAlpha = Math.max(0, this.life); 
+        
+        // --- 2. DRAWING THE OCTAGON ---
+        ctx.beginPath();
+        for (let j = 0; j < 8; j++) {
+            // Divide a full circle (Math.PI * 2) into 8 equal angles
+            const angle = (j * Math.PI * 2) / 8; 
+            const pointX = this.x + this.size * Math.cos(angle);
+            const pointY = this.y + this.size * Math.sin(angle);
+            
+            if (j === 0) {
+                ctx.moveTo(pointX, pointY);
+            } else {
+                ctx.lineTo(pointX, pointY);
+            }
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+}
+
+function handleParticles() {
+    for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+        particlesArray[i].draw();
+        
+        if (particlesArray[i].life <= 0) {
+            particlesArray.splice(i, 1);
+            i--;
+        }
+    }
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    handleParticles();
+    requestAnimationFrame(animateParticles);
+}
+
+animateParticles();
 </script>
 </body>
 </html>
