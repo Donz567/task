@@ -1350,27 +1350,27 @@ function showLogs() {
 
   logStatsContainer.innerHTML = `
       <div class="col-md-3 mb-2">
-          <div class="p-3 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded shadow-sm">
-              <h3 class="text-primary mb-0 fw-bold">${totalLogs}</h3>
-              <small class="text-muted fw-bold">Total Logged</small>
+          <div class="p-2 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded shadow-sm">
+              <h5 class="text-primary mb-0 fw-bold">${totalLogs}</h5>
+              <span class="text-muted fw-bold" style="font-size: 0.75rem;">Total Logged</span>
           </div>
       </div>
       <div class="col-md-3 mb-2">
-          <div class="p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded shadow-sm">
-              <h3 class="text-success mb-0 fw-bold">${completedLogs}</h3>
-              <small class="text-muted fw-bold">Completed</small>
+          <div class="p-2 bg-success bg-opacity-10 border border-success border-opacity-25 rounded shadow-sm">
+              <h5 class="text-success mb-0 fw-bold">${completedLogs}</h5>
+              <span class="text-muted fw-bold" style="font-size: 0.75rem;">Completed</span>
           </div>
       </div>
       <div class="col-md-3 mb-2">
-          <div class="p-3 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded shadow-sm">
-              <h3 class="text-warning mb-0 fw-bold">${ongoingLogs}</h3>
-              <small class="text-muted fw-bold">Ongoing</small>
+          <div class="p-2 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded shadow-sm">
+              <h5 class="text-warning mb-0 fw-bold">${ongoingLogs}</h5>
+              <span class="text-muted fw-bold" style="font-size: 0.75rem;">Ongoing</span>
           </div>
       </div>
       <div class="col-md-3 mb-2">
-          <div class="p-3 bg-info bg-opacity-10 border border-info border-opacity-25 rounded shadow-sm">
-              <h3 class="text-info mb-0 fw-bold">${topBrand}</h3>
-              <small class="text-muted fw-bold">Top Brand</small>
+          <div class="p-2 bg-info bg-opacity-10 border border-info border-opacity-25 rounded shadow-sm">
+              <h5 class="text-info mb-0 fw-bold text-truncate" title="${topBrand}">${topBrand}</h5>
+              <span class="text-muted fw-bold" style="font-size: 0.75rem;">Top Brand</span>
           </div>
       </div>
   `;
