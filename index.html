@@ -1592,7 +1592,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // ==========================================
-// --- CURSOR PARTICLE EFFECT (WORD "DON") ---
+// --- CURSOR PARTICLE EFFECT (LOGGED IN NAME) ---
 // ==========================================
 const canvas = document.getElementById('cursorCanvas');
 const ctx = canvas.getContext('2d');
@@ -1601,6 +1601,10 @@ canvas.height = window.innerHeight;
 
 let particlesArray = [];
 let hue = 200; // Starting color hue
+
+// --- NEW: Grab the logged in user's name! ---
+// (If no one is logged in yet, it will default to "Welcome!")
+const trailText = localStorage.getItem("agent") || "Welcome!";
 
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
@@ -1632,11 +1636,11 @@ class Particle {
     constructor() {
         this.x = mouse.x;
         this.y = mouse.y;
-        this.size = 8; // Font size of "DON"
+        this.size = 12; // Font size of the name
         
         // Gentle float upwards and sideways
-        this.speedX = Math.random() * 1 - 0.25; 
-        this.speedY = Math.random() * -1 - 0.25; 
+        this.speedX = Math.random() * 1 - 0.5; 
+        this.speedY = Math.random() * -1 - 0.5; 
         
         // Dynamic gradient color
         this.color = `hsl(${hue}, 100%, 60%)`; 
@@ -1648,7 +1652,7 @@ class Particle {
         this.y += this.speedY;
         this.life -= 0.015; // Slow fade
         
-        // Optional: Slightly scale text up as it fades
+        // Slightly scale text up as it fades
         this.size += 0.1;
     }
     
@@ -1659,8 +1663,8 @@ class Particle {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         
-        // Stamp the word
-        ctx.fillText("D O N", this.x, this.y);
+        // Stamp the dynamic name!
+        ctx.fillText(trailText, this.x, this.y);
     }
 }
 
