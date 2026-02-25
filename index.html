@@ -120,7 +120,6 @@ body {
 }
 /* --- WORKING INDICATOR STYLES --- */
 .task-working {
-  
     box-shadow: 0 4px 15px rgba(13, 110, 253, 0.15) !important;
 }
 .working-indicator {
@@ -1331,7 +1330,7 @@ function showLogs() {
     return;
   }
 
-  // --- NEW: LOG STATISTICS DASHBOARD ---
+  // --- LOG STATISTICS DASHBOARD ---
   let totalLogs = logs.length;
   let completedLogs = logs.filter(l => l.status === "Completed").length;
   let ongoingLogs = logs.filter(l => l.status === "Ongoing").length;
@@ -1374,7 +1373,6 @@ function showLogs() {
           </div>
       </div>
   `;
-  // -------------------------------------
 
   let html = `
     <table class="table table-striped align-middle">
@@ -1491,7 +1489,6 @@ function renderPagination(totalPages){
     });
 }
 
-// --- NEW: TOAST NOTIFICATIONS ---
 function showBanner(message, type="success") {
     const toastContainer = document.getElementById("toastContainer");
     
@@ -1572,7 +1569,6 @@ function generateWorkLog() {
 
   checkLogToggle(); 
   
-  // Close the modal and refresh UI so charts/buttons reset
   const modalEl = document.getElementById("logsModal");
   const modalObj = bootstrap.Modal.getInstance(modalEl);
   if(modalObj) modalObj.hide();
@@ -1580,7 +1576,6 @@ function generateWorkLog() {
 }
 
 document.getElementById("generateLogBtn")?.addEventListener("click", generateWorkLog);
-
 
 function updateLastUpdated(){
     const now=new Date();
@@ -1597,7 +1592,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // ==========================================
-// --- CURSOR PARTICLE EFFECT (OCTAGONS) ---
+// --- CURSOR PARTICLE EFFECT (WORD "DON") ---
 // ==========================================
 const canvas = document.getElementById('cursorCanvas');
 const ctx = canvas.getContext('2d');
@@ -1605,10 +1600,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let particlesArray = [];
-
-// --- 1. SINGLE COLOR HERE ---
-// Change this hex code to whatever color you prefer! 
-const particleColor = '#0d6efd'; 
+let hue = 200; // Starting color hue
 
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
@@ -1616,12 +1608,23 @@ window.addEventListener('resize', () => {
 });
 
 const mouse = { x: undefined, y: undefined };
+let lastSpawn = { x: 0, y: 0 };
+const minSpawnDistance = 45; // Adjust this number if words are too close/far
 
 window.addEventListener('mousemove', (event) => {
     mouse.x = event.x;
     mouse.y = event.y;
-    for (let i = 0; i < 2; i++) {
+    
+    // Check distance between current mouse and the last spawned word
+    const dx = mouse.x - lastSpawn.x;
+    const dy = mouse.y - lastSpawn.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    // Only spawn if it has moved far enough
+    if (distance > minSpawnDistance) {
         particlesArray.push(new Particle());
+        lastSpawn.x = mouse.x;
+        lastSpawn.y = mouse.y;
     }
 });
 
@@ -1629,40 +1632,35 @@ class Particle {
     constructor() {
         this.x = mouse.x;
         this.y = mouse.y;
-        // Made them slightly larger (between 2 and 6) so the octagon shape is visible
-        this.size = Math.random() * 4 + 2; 
-        this.speedX = Math.random() * 3 - 1.5; 
-        this.speedY = Math.random() * 3 - 1.5; 
+        this.size = 8; // Font size of "DON"
+        
+        // Gentle float upwards and sideways
+        this.speedX = Math.random() * 1 - 0.25; 
+        this.speedY = Math.random() * -1 - 0.25; 
+        
+        // Dynamic gradient color
+        this.color = `hsl(${hue}, 100%, 60%)`; 
         this.life = 1; 
     }
     
     update() {
         this.x += this.speedX;
         this.y += this.speedY;
-        this.life -= 0.03; 
-        if (this.size > 0.2) this.size -= 0.1; 
+        this.life -= 0.015; // Slow fade
+        
+        // Optional: Slightly scale text up as it fades
+        this.size += 0.1;
     }
     
     draw() {
-        ctx.fillStyle = particleColor;
         ctx.globalAlpha = Math.max(0, this.life); 
+        ctx.fillStyle = this.color;
+        ctx.font = `bold ${this.size}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         
-        // --- 2. DRAWING THE OCTAGON ---
-        ctx.beginPath();
-        for (let j = 0; j < 8; j++) {
-            // Divide a full circle (Math.PI * 2) into 8 equal angles
-            const angle = (j * Math.PI * 2) / 8; 
-            const pointX = this.x + this.size * Math.cos(angle);
-            const pointY = this.y + this.size * Math.sin(angle);
-            
-            if (j === 0) {
-                ctx.moveTo(pointX, pointY);
-            } else {
-                ctx.lineTo(pointX, pointY);
-            }
-        }
-        ctx.closePath();
-        ctx.fill();
+        // Stamp the word
+        ctx.fillText("D O N", this.x, this.y);
     }
 }
 
@@ -1681,6 +1679,10 @@ function handleParticles() {
 function animateParticles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     handleParticles();
+    
+    // Shift the hue continuously to create the gradient effect
+    hue += 2; 
+    
     requestAnimationFrame(animateParticles);
 }
 
